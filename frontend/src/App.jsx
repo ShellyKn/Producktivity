@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import Logo from "./components/Logo.jsx";
-import NavBar from "./components/NavBar.jsx";
+import Header from "./components/Header.jsx";
+import {
+  BrowserRouter as Router,
+  Link
+} from "react-router-dom";
 
 // basic test function 
 function App() {
@@ -15,16 +19,21 @@ function App() {
   }, [])
 
   return (
-    <div className="bg-white **overflow-hidden**">
+    <div className="bg-[#FAFAF0] **overflow-hidden**">
 
-      <NavBar left_side={<Logo></Logo>} right_side="Sign Up/Log In"></NavBar>
+      <Header left_side={<Logo></Logo>} right_side={<Link to="/todo"><button className="text-xl">Sign Up/Log In</button></Link>}></Header>
       {/* <h1 className="text-3xl font-bold text-black font-inria-sans">{message}</h1> */}
       <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col items-center rounded-3xl h-48 border bg-blue-400">
-          Get things duck duck done with this gamified to-do list app!
-          <button className="bg-slate-50 text-slate-900 rounded-3xl p-3 hover:bg-slate-900 hover:text-slate-50 transition duration-700 ease-in-out w-fit">
-            Get Started!
-          </button>
+        <div className="w-3/4 items-center">
+          <img src="art/temp_pond.svg" className="w-full"></img>
+          <div className="flex flex-col items-center absolute top-1/2 left-1/2 -translate-x-1/2">
+            <h1 className="text-3xl w-full text-[#5A311F] text-center p-6">
+              <i>Get things <strong>duck duck done</strong> with this gamified to-do list app!</i>
+            </h1>
+            <button className="text-xl px-20 bg-[#FAFAF0] text-[#5A311F] rounded-full p-3 hover:bg-[#5A311F] hover:text-[#FAFAF0] transition duration-700 ease-in-out w-fit border border-[#5A311F]">
+              get started!
+            </button>
+          </div>
         </div>
       </div>
     </div>
