@@ -60,8 +60,13 @@ function ToDo() {
                 </div>
 
                 {/* RIGHT PANEL */}
-                <div className="flex-1 py-5 px-10">
-                    right
+                <div className="flex-col flex-1 py-5 px-10">
+                    <h1 className="text-[48px] text-[#2F4858]">leaderboard:</h1>
+                    <div className="flex-1 flex flex-col justify-between border-4 border-[#2F4858] rounded-lg items-center p-5">
+                        <h1 className="text-3xl">User 1</h1>
+                        <h1 className="text-3xl">User 2</h1>
+                        <h1 className="text-3xl">User 3</h1>
+                    </div>
                 </div>
             </div>
         </div>
