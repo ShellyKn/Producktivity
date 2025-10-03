@@ -11,11 +11,11 @@ function Task({taskData, isBlankTask}) {
         <div className="flex flex-col gap-4 w-full my-4">
             <div className="flex w-full gap-4 text-[#5A311F] ">
                 {/* Checkbox */}
-                <button className="border-4 border-[#2F4858] rounded-lg w-[30px] h-[30px]">
+                <button className="border-4 border-[#2F4858] rounded-xl w-[30px] h-[30px]">
                 </button>
 
                 {/* Actual task name */}
-                <input type="text" id="username" name="username" className="flex-1 bg-[#FAFAF0] text-[#2F4858] focus:border-none focus:outline-none" defaultValue={taskName}>
+                <input type="text" id="username" name="username" className="text-lg flex-1 bg-[#FAFAF0] text-[#2F4858] focus:border-none focus:outline-none" defaultValue={taskName}>
                 </input>
             </div>
 

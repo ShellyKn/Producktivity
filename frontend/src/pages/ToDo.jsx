@@ -21,7 +21,7 @@ function ToDo() {
             <Header left_side={<Logo></Logo>} right_side="PROFILE   DASHBOARD"></Header>
 
             {/* Main div for the three sections */}
-            <div className="w-full flex-1 flex">
+            <div className="font-jua w-full flex-1 flex text-[#2F4858]">
                 {/* LEFT PANEL */}
                 <div className="flex-1 py-5 px-10 flex flex-col gap-10 justify-between">
                     {/* Profile section */}
@@ -30,12 +30,12 @@ function ToDo() {
 
                         <div className="flex flex-col items-center">
                             <h1 className="text-[60px] text-[#2F4858]">{numTasks}</h1>
-                            <p className="text-[#2F4858]"> tasks done today </p>
+                            <p className="text-[#2F4858] text-lg"> tasks done today </p>
                         </div>
                         
                         <div className="flex flex-col items-center">
                             <h1 className="text-[60px] text-[#2F4858]">{streakDays}-DAY</h1>
-                            <p className="text-[#2F4858]"> streak </p>
+                            <p className="text-[#2F4858] text-lg"> streak </p>
                         </div>
 
                         <button className="text-3xl">
@@ -45,7 +45,7 @@ function ToDo() {
 
                     {/*TODO: Quote API here */}
                     <div className="flex flex-col h-fit border-4 border-[#2F4858] rounded-lg items-center p-5">
-                        <h1>{quote}</h1>
+                        <h1 className="text-xl">{quote}</h1>
                     </div>
                 </div>
 
