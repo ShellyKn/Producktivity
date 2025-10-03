@@ -1,11 +1,19 @@
 import {useEffect, useState} from "react";
 import Header from "./../components/Header.jsx";
 import Logo from "./../components/Logo.jsx";
+import Task from "./../components/Task.jsx";
 
 function ToDo() {
     const [numTasks, setNumTasks] = useState(3);
     const [streakDays, setStreakDays] = useState(10);
     const [quote, setQuote] = useState("You're doing ducktastic!");
+    const [taskEx, setTaskEx] = useState(
+        {
+            name: "testing",
+            due_date: "10/3/1015",
+            notes: "no notes"
+        }
+    )
 
     return (
         // Page div
@@ -14,7 +22,7 @@ function ToDo() {
 
             {/* Main div for the three sections */}
             <div className="w-full flex-1 flex">
-                {/* Left most panel */}
+                {/* LEFT PANEL */}
                 <div className="flex-1 py-5 px-10 flex flex-col gap-10 justify-between">
                     {/* Profile section */}
                     <div className="flex-1 flex flex-col justify-between border-4 border-[#2F4858] rounded-lg items-center p-5">
@@ -41,15 +49,17 @@ function ToDo() {
                     </div>
                 </div>
 
-                {/* Middle panel (todo list part) */}
-                <div className="flex-none py-5 px-10 w-1/2">
+                {/* MIDDLE PANEL (the todo list part) */}
+                <div className="flex-none flex-col gap-4 py-5 px-10 w-1/2 overflow-y-auto">
                     <div className="w-full h-10 flex justify-between items-center">
                         <h1 className="text-[48px]">to-do:</h1>
                         <button className="border-4 border-[#2F4858] rounded-lg px-4 text-[24px]">+ add task</button>
                     </div>
+                    <Task taskData={taskEx}></Task>
+                    <Task taskData={taskEx}></Task>
                 </div>
 
-                {/* Right panel*/}
+                {/* RIGHT PANEL */}
                 <div className="flex-1 py-5 px-10">
                     right
                 </div>
