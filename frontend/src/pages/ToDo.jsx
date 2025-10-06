@@ -55,8 +55,9 @@ function ToDo() {
                         <h1 className="text-[48px]">to-do:</h1>
                         <button className="border-4 border-[#2F4858] rounded-lg px-4 text-[24px]">+ add task</button>
                     </div>
-                    <Task taskData={taskEx}></Task>
-                    <Task taskData={taskEx}></Task>
+                    <Task taskData={taskEx} isBlankTask={false}></Task>
+                    <Task taskData={taskEx} isBlankTask={false}></Task>
+                    <Task taskData={taskEx} isBlankTask={true}></Task>
                 </div>
 
                 {/* RIGHT PANEL */}
