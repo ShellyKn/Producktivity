@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import Header from "./../components/Header.jsx";
 import Logo from "./../components/Logo.jsx";
 import Task from "./../components/Task.jsx";
+import TaskLoader from "./../components/TaskLoader.jsx";
 
 function ToDo() {
     const [numTasks, setNumTasks] = useState(3);
@@ -13,6 +14,21 @@ function ToDo() {
             due_date: "10/3/1015",
             notes: "no notes"
         }
+    )
+    const [tasks, setTasks] = useState(
+        [
+            // Empty array on load (needs to be filled in with a fetch to the db)
+            {
+                name: "testing",
+                due_date: "10/3/1015",
+                notes: "no notes"
+            },
+            {
+                name: "testing",
+                due_date: "10/3/1015",
+                notes: "no notes"
+            },
+        ]
     )
 
     return (
@@ -52,12 +68,10 @@ function ToDo() {
                 {/* MIDDLE PANEL (the todo list part) */}
                 <div className="flex-none flex-col gap-4 py-5 px-10 w-1/2 overflow-y-auto">
                     <div className="w-full h-10 flex justify-between items-center">
-                        <h1 className="text-[48px]">to-do:</h1>
+                        <h1 className="text-[48px]">to-do today:</h1>
                         <button className="border-4 border-[#2F4858] rounded-lg px-4 text-[24px]">+ add task</button>
                     </div>
-                    <Task taskData={taskEx} isBlankTask={false}></Task>
-                    <Task taskData={taskEx} isBlankTask={false}></Task>
-                    <Task taskData={taskEx} isBlankTask={true}></Task>
+                    <TaskLoader tasks={tasks}></TaskLoader>
                 </div>
 
                 {/* RIGHT PANEL */}

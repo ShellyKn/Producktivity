@@ -4,7 +4,8 @@ import {useState} from "react";
 // Task due date - probably just a string value again or some sort of date type
 // Task notes - string value
 
-function Task({taskData, isBlankTask}) {
+function Task({taskData, isBlankTask, setTasks}) {
+    // Need a use effect to load the data
     const [taskName, setTaskName] = useState(taskData.name);
 
     return (
