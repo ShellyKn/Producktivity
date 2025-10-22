@@ -19,7 +19,13 @@ function TaskLoader({tasks, theTasks, setTheTasks}) {
             {tasks &&
                 // TODO: Needs a key for good practice
                 tasks.map((task) => { 
-                        return (<Task taskData={task} theTasks ={theTasks} isBlankTask={false} setTheTasks={setTheTasks}></Task>)
+                        return (
+                            <Task taskData={task} 
+                                theTasks={theTasks} 
+                                isBlankTask={false} 
+                                setTheTasks={setTheTasks}>
+                            </Task>
+                        )
                     }
                 )
             }

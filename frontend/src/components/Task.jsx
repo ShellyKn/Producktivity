@@ -7,7 +7,6 @@ import {useState} from "react";
 function Task({taskData, isBlankTask, theTasks, setTheTasks}) {
     // Need a use effect to load the data
     const [taskName, setTaskName] = useState(taskData.name);
-    const [blankVal, setBlankVal] = useState("");
 
     const newTaskHandler = (value) => {
         if (event.key == "Enter") {
