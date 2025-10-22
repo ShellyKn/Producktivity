@@ -66,12 +66,14 @@ function ToDo() {
                 </div>
 
                 {/* MIDDLE PANEL (the todo list part) */}
-                <div className="flex-none flex-col gap-4 py-5 px-10 w-1/2 overflow-y-auto">
+                <div className="flex-none flex-col gap-4 py-5 px-10 w-1/2 overflow-y-visible">
                     <div className="w-full h-10 flex justify-between items-center">
                         <h1 className="text-[48px]">to-do today:</h1>
                         <button className="border-4 border-[#2F4858] rounded-lg px-4 text-[24px]">+ add task</button>
                     </div>
-                    <TaskLoader tasks={tasks}></TaskLoader>
+                    <div className="overflow-scroll">
+                        <TaskLoader tasks={tasks} theTasks = {tasks} setTheTasks={setTasks}></TaskLoader>    
+                    </div>
                 </div>
 
                 {/* RIGHT PANEL */}

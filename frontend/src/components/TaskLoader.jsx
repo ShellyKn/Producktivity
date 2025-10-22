@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
 import Task from "./Task";
 
-function TaskLoader({tasks, setTasks}) {
+function TaskLoader({tasks, theTasks, setTheTasks}) {
     const [taskEx, setTaskEx] = useState(
         {
             name: "testing",
@@ -19,12 +19,12 @@ function TaskLoader({tasks, setTasks}) {
             {tasks &&
                 // TODO: Needs a key for good practice
                 tasks.map((task) => { 
-                        return (<Task taskData={task} isBlankTask={false}></Task>)
+                        return (<Task taskData={task} theTasks ={theTasks} isBlankTask={false} setTheTasks={setTheTasks}></Task>)
                     }
                 )
             }
 
-            <Task taskData={taskEx} isBlankTask={true}></Task>
+            <Task taskData={taskEx} theTasks={theTasks} isBlankTask={true} setTheTasks={setTheTasks}></Task>
         </>
     )
 }
