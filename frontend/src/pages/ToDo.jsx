@@ -74,7 +74,7 @@ function ToDo() {
 
           {/* MIDDLE PANEL (todo list part) */}
           <div className="flex-none flex-col gap-4 py-5 px-10 w-1/2 overflow-y-visible">
-            <div className="w-full h-10 flex justify-between items-center">
+            <div className="w-full flex justify-between items-center mb-1">
               <h1 className="text-[48px]">to-do today:</h1>
               <button
                 className="border-4 border-[#2F4858] rounded-lg px-4 text-[24px]"
