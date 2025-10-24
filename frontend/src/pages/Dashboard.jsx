@@ -1,4 +1,5 @@
 import TaskColumn from "../components/TaskColumn";
+import StreakDay from "../components/StreakDay";
 
 export default function Dashboard({
   theTasks,
@@ -17,7 +18,7 @@ export default function Dashboard({
   
   return (
     
-    <div className="flex flex-col gap-6 px-6 py-4">
+    <div className="flex flex-col gap-6 px-6 py-4 h-full">
       <div className="flex justify-between items-center font-jua text-[#2F4858]">
         <div>
           <p className="text-[50px]">WELCOME DUCKLING!</p>
@@ -49,6 +50,21 @@ export default function Dashboard({
             <p className="text-[18px]">Streak: 10 days</p>
             <p className="text-[18px]">Productivity level: 🦆</p>
           </div>
+        </div>
+      </div>
+
+      <div className="relative w-full">
+        {/* Line behind streak */}
+        <div className="border-4 border-[#2F4858] rounded-full w-full absolute top-[55%] z-0"></div>
+        <div className="flex justify-between gap-4">
+        {/* TODO: This needs to be a mapping once we have a database connected */}
+          <StreakDay day="Sunday"></StreakDay>
+          <StreakDay day="Monday"></StreakDay>
+          <StreakDay day="Tuesday"></StreakDay>
+          <StreakDay day="Wednesday"></StreakDay>
+          <StreakDay day="Thursday"></StreakDay>
+          <StreakDay day="Friday"></StreakDay>
+          <StreakDay day="Saturday"></StreakDay>
         </div>
       </div>
     </div>
