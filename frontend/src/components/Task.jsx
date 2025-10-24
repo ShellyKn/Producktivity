@@ -18,12 +18,33 @@ function Task({ taskData, isBlankTask, theTasks, setTheTasks }) {
             due_date: "",
             notes: "",
             completed: false,
-          },
+          }
         ]);
-        e.target.value = "";
+        setTaskName("");
       }
     }
   };
+
+    // const newTaskHandler = (value) => {
+    //     if (event.key == "Enter") {
+    //         if (value !== "") {
+    //             // Add it to the tasks 
+    //             setTheTasks(
+    //                 [
+    //                     ...theTasks,
+    //                     {
+    //                         name: value,
+    //                         due_date: "10/3/1015",
+    //                         notes: "no notes"
+    //                     }
+    //                 ]
+    //             );
+    //             value = "";
+    //         } else {
+    //             // Do nothing
+    //         }
+    //     }
+    // }
 
   const toggleComplete = () => {
     setCompleted(!completed);
@@ -63,7 +84,7 @@ function Task({ taskData, isBlankTask, theTasks, setTheTasks }) {
             value={taskName}
             onChange={(e) => setTaskName(e.target.value)}
             // onKeyDown={isBlankTask ? handleNewTask : undefined}
-            onKeyDown={isBlankTask ? (e) => handleNewTask(e.target.value) : ""}
+            onKeyDown={isBlankTask ? (e) => handleNewTask(e) : ""}
             placeholder={isBlankTask ? "Add a new task..." : ""}
             className="flex-1 bg-[#FAFAF0] text-lg focus:outline-none"
             onClick={(e) => e.stopPropagation()} // prevent toggle

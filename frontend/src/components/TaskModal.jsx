@@ -1,7 +1,45 @@
 import React from "react";
+import { useState } from "react";
 
-const TaskModal = ({ isOpen, onClose }) => {
+const TaskModal = ({ isOpen, onClose, theTasks, setTheTasks}) => {
+  const [name, setName] = useState("");
+  const [date, setDate] = useState("");
+  const [notes, setNotes] = useState("");
+
   if (!isOpen) return null;
+
+  const changeName = (e) => {
+    setName(e.target.value);
+  };
+
+  const changeDate = (e) => {
+    setDate(e.target.value);
+  };
+
+  const changeNotes = (e) => {
+    setNotes(e.target.value);
+  };
+
+  
+  const handleNewTask = (theName, due, notes) => {
+    if (theName !== "") {
+      setTheTasks([
+        ...theTasks,
+        {
+          name: theName,
+          due_date: due,
+          notes: notes,
+          completed: false,
+        }
+      ]);
+
+      setName("");
+      setDate("");
+      setNotes("");
+
+      onClose();
+    }
+  };
 
   return (
     <div
@@ -24,8 +62,10 @@ const TaskModal = ({ isOpen, onClose }) => {
             <label className="block text-lg mb-1">Task Name:</label>
             <input
               type="text"
+              value={name}
               placeholder="Enter task name"
               className="w-full border-2 border-[#464141] rounded-lg p-2 bg-white"
+              onChange={changeName}
             />
           </div>
 
@@ -33,27 +73,29 @@ const TaskModal = ({ isOpen, onClose }) => {
             <label className="block text-lg mb-1">Due Date (MM/DD/YY):</label>
             <input
               type="text"
+              value={date}
               placeholder="MM/DD/YY"
               className="w-full border-2 border-[#464141] rounded-lg p-2 bg-white"
+              onChange={changeDate}
             />
           </div>
 
           <div>
             <label className="block text-lg mb-1">Notes:</label>
             <textarea
+              value={notes}
+              onChange={changeNotes}
               rows="4"
               placeholder="Add any notes here..."
               className="w-full border-2 border-[#464141] rounded-lg p-2 bg-white"
             />
           </div>
-
-          <button
-            type="submit"
-            className="mt-2 bg-[#464141] text-white text-xl py-2 rounded-lg hover:bg-[#1e3442]"
-          >
-            Save Task
-          </button>
         </form>
+        <button onClick={() => handleNewTask(name, date, notes)}
+          className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
+        >
+          Save Task
+        </button>
       </div>
     </div>
   );

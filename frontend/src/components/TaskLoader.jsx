@@ -4,7 +4,7 @@ import Task from "./Task";
 function TaskLoader({tasks, theTasks, setTheTasks}) {
     const [taskEx, setTaskEx] = useState(
         {
-            name: "testing",
+            name: "",
             due_date: "10/3/1015",
             notes: "no notes"
         }

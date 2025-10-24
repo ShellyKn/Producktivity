@@ -31,6 +31,15 @@ function ToDo() {
     ],
   });
 
+//   TODO: This is a VERY quick fix bc of the deadline tn. The tasks can't be set up the way they are above bc then
+// it's no longer an array of tasks, which is what the Task components assume. We'll fix this later, but for now this works:
+  const [theActualTasks, setTheActualTasks] = useState(
+    [
+      { name: "finish mockups", due_date: "09/30/25", notes: "", completed: false },
+      { name: "finish deliverables for Sprint 1", due_date: "09/30/25", notes: "", completed: false },
+      { name: "meeting at 5pm for S8D4", due_date: "09/30/25", notes: "", completed: false },
+    ]
+  );
 
 
   useEffect(() => {
@@ -100,7 +109,7 @@ function ToDo() {
               </button>
             </div>
             <div className="overflow-scroll">
-<TaskLoader tasks={theTasks.today} theTasks={theTasks} setTheTasks={setTheTasks} />
+                <TaskLoader tasks={theActualTasks} theTasks={theActualTasks} setTheTasks={setTheActualTasks} />
             </div>
           </div>
 
@@ -108,16 +117,24 @@ function ToDo() {
           <div className="flex-col flex-1 py-5 px-10">
             <h1 className="text-[48px]">leaderboard:</h1>
             <div className="flex-1 flex flex-col justify-between border-4 border-[#2F4858] rounded-lg items-center p-5">
-              <h1 className="text-3xl">User 1</h1>
-              <h1 className="text-3xl">User 2</h1>
-              <h1 className="text-3xl">User 3</h1>
+              <h1 className="text-3xl underline">1st axaleaa</h1>
+              <h1 className="text-3xl underline">2nd academicSam</h1>
+              <h1 className="text-3xl underline">3rd prof_stur</h1>
+              <h1 className="text-3xl underline">4th undrcvr_dUCK</h1>
+              <h1 className="text-3xl underline">5th aChillGuy</h1>
+              <h1 className="text-3xl underline">6th willy</h1>
             </div>
           </div>
         </div>
       )}
 
       {/* MODAL */}
-      <TaskModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
+      <TaskModal 
+        isOpen={isModalOpen} 
+        onClose={() => setModalOpen(false)} 
+        theTasks={theActualTasks} 
+        setTheTasks={setTheActualTasks} 
+      />
     </div>
   );
 }
