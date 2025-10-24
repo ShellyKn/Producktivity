@@ -1,4 +1,4 @@
-export default function TaskColumn({ title, date, tasks }) {
+export default function TaskColumn({ title, date, tasks, onToggle }) {
   return (
     <div className="border-4 border-[#2F4858] rounded-xl p-4 flex flex-col gap-4 bg-[#FAFAF0] font-jua text-[#2F4858]">
       <div>
@@ -12,8 +12,7 @@ export default function TaskColumn({ title, date, tasks }) {
             <input
               type="checkbox"
               checked={task.completed}
-              onChange={() => {
-              }}
+              onChange={() => onToggle(index)}
               className="w-[20px] h-[20px] accent-[#2F4858]"
             />
             <span

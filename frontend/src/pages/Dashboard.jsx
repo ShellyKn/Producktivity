@@ -5,7 +5,16 @@ export default function Dashboard({
   setTheTasks,
   modalOpen,
   setModalOpen,
-}) {
+  }) 
+
+  {
+    const toggleTask = (column, index) => {
+      const updated = { ...theTasks };
+      updated[column] = [...updated[column]];
+      updated[column][index].completed = !updated[column][index].completed;
+      setTheTasks(updated);
+    };
+  
   return (
     
     <div className="flex flex-col gap-6 px-6 py-4">
@@ -24,9 +33,9 @@ export default function Dashboard({
       <div className="flex gap-6 font-jua text-[#2F4858]">
         <div className="w-[60%]">
           <div className="grid grid-cols-3 gap-6">
-            <TaskColumn title="YESTERDAY" date="09/29/25" tasks={theTasks.yesterday} />
-            <TaskColumn title="TODAY" date="09/30/25" tasks={theTasks.today} />
-            <TaskColumn title="TOMORROW" date="10/01/25" tasks={theTasks.tomorrow} />
+            <TaskColumn title="YESTERDAY" date="09/29/25" tasks={theTasks.yesterday} onToggle={(i) => toggleTask("yesterday", i)} />
+            <TaskColumn title="TODAY" date="09/30/25" tasks={theTasks.today} onToggle={(i) => toggleTask("today", i)} />
+            <TaskColumn title="TOMORROW" date="10/01/25" tasks={theTasks.tomorrow} onToggle={(i) => toggleTask("tomorrow", i)} />
           </div>
         </div>
 
