@@ -53,18 +53,19 @@ export default function Dashboard({
         </div>
       </div>
 
-      <div className="relative w-full">
+      <div className="relative w-full font-jua">
+        <p className="text-3xl">WEEKLY STREAK:</p>
         {/* Line behind streak */}
-        <div className="border-4 border-[#2F4858] rounded-full w-full absolute top-[55%] z-0"></div>
+        <div className="border-4 border-[#2F4858] rounded-full w-full absolute top-[65%] z-0"></div>
         <div className="flex justify-between gap-4">
         {/* TODO: This needs to be a mapping once we have a database connected */}
-          <StreakDay day="Sunday"></StreakDay>
-          <StreakDay day="Monday"></StreakDay>
-          <StreakDay day="Tuesday"></StreakDay>
-          <StreakDay day="Wednesday"></StreakDay>
-          <StreakDay day="Thursday"></StreakDay>
-          <StreakDay day="Friday"></StreakDay>
-          <StreakDay day="Saturday"></StreakDay>
+          <StreakDay day="Sunday" wasActive={true}></StreakDay>
+          <StreakDay day="Monday" wasActive={true}></StreakDay>
+          <StreakDay day="Tuesday" wasActive={true}></StreakDay>
+          <StreakDay day="Wednesday" wasActive={false}></StreakDay>
+          <StreakDay day="Thursday" wasActive={false}></StreakDay>
+          <StreakDay day="Friday" wasActive={false}></StreakDay>
+          <StreakDay day="Saturday" wasActive={false}></StreakDay>
         </div>
       </div>
     </div>

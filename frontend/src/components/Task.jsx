@@ -61,7 +61,7 @@ function Task({ taskData, isBlankTask, theTasks, setTheTasks }) {
           <input
             type="text"
             value={taskName}
-            onChange={(e) => setTaskName(e.target.value)}
+            onChange={(e) => {handleNewTask(e.target.value); setTaskName(e.target.value);}}
             onKeyDown={isBlankTask ? handleNewTask : undefined}
             placeholder={isBlankTask ? "Add a new task..." : ""}
             className="flex-1 bg-[#FAFAF0] text-lg focus:outline-none"
