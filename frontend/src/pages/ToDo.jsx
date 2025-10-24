@@ -4,6 +4,7 @@ import Logo from "./../components/Logo.jsx";
 import TaskLoader from "./../components/TaskLoader.jsx";
 import Nav from "../components/Nav.jsx";
 import TaskModal from "../components/TaskModal.jsx";
+import Dashboard from "../pages/Dashboard.jsx"
 
 function ToDo() {
   // Used for keeping track of what "page" we are on in the navigation menu 
@@ -14,23 +15,31 @@ function ToDo() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   // Empty array on load (needs to be filled in with a fetch to the db)
-  const [tasks, setTasks] = useState([
-    { 
-        name: "testing", 
-        due_date: "10/3/1015", 
-        notes: "no notes" 
-    },
-    { 
-        name: "testing", 
-        due_date: "10/3/1015", 
-        notes: "no notes" 
-    },
-  ]);
+  const [theTasks, setTheTasks] = useState({
+    yesterday: [
+      { name: "finish mockups", due_date: "09/29/25", notes: "done", completed: true },
+      { name: "lab 1", due_date: "09/29/25", notes: "crossed out", completed: false },
+    ],
+    today: [
+      { name: "finish mockups", due_date: "09/30/25", notes: "", completed: false },
+      { name: "finish deliverables for Sprint 1", due_date: "09/30/25", notes: "", completed: false },
+      { name: "meeting at 5pm for S8D4", due_date: "09/30/25", notes: "", completed: false },
+    ],
+    tomorrow: [
+      { name: "wireframes", due_date: "10/01/25", notes: "", completed: false },
+      { name: "hw2", due_date: "10/01/25", notes: "", completed: false },
+    ],
+  });
+
 
 
   useEffect(() => {
     // alert(pageIndex);
   });
+
+  useEffect(() => {
+  console.log("Current page index:", pageIndex);
+}, [pageIndex]);
 
   return (
     <div className="bg-[#FAFAF0] h-screen flex flex-col">
@@ -45,7 +54,14 @@ function ToDo() {
         }
       />
 
-      {pageIndex === 1 && <p>Dashboard stuff goes here</p>}
+      {pageIndex === 1 && (
+        <Dashboard
+          theTasks={theTasks}
+          setTheTasks={setTheTasks}
+          modalOpen={isModalOpen}
+          setModalOpen={setModalOpen}
+        />
+      )}
 
       {pageIndex === 0 && (
         // {/* Main div for the three sections */}
@@ -84,7 +100,7 @@ function ToDo() {
               </button>
             </div>
             <div className="overflow-scroll">
-              <TaskLoader tasks={tasks} theTasks={tasks} setTheTasks={setTasks} />
+<TaskLoader tasks={theTasks.today} theTasks={theTasks} setTheTasks={setTheTasks} />
             </div>
           </div>
 
