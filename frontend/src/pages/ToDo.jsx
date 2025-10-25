@@ -124,6 +124,7 @@ function ToDo() {
               <h1 className="text-3xl underline mt-4">5th aChillGuy</h1>
               <h1 className="text-3xl underline mt-4">6th willy</h1>
             </div>
+            <img src="art/duck.png" className="mt-4 w-1/2 m-auto"></img>
           </div>
         </div>
       )}
