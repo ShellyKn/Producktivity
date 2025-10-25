@@ -72,7 +72,7 @@ const TaskModal = ({ isOpen, onClose, theTasks, setTheTasks}) => {
           <div>
             <label className="block text-lg mb-1">Due Date (MM/DD/YY):</label>
             <input
-              type="text"
+              type="date"
               value={date}
               placeholder="MM/DD/YY"
               className="w-full border-2 border-[#464141] rounded-lg p-2 bg-white"

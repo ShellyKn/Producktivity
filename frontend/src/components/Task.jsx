@@ -25,27 +25,6 @@ function Task({ taskData, isBlankTask, theTasks, setTheTasks }) {
     }
   };
 
-    // const newTaskHandler = (value) => {
-    //     if (event.key == "Enter") {
-    //         if (value !== "") {
-    //             // Add it to the tasks 
-    //             setTheTasks(
-    //                 [
-    //                     ...theTasks,
-    //                     {
-    //                         name: value,
-    //                         due_date: "10/3/1015",
-    //                         notes: "no notes"
-    //                     }
-    //                 ]
-    //             );
-    //             value = "";
-    //         } else {
-    //             // Do nothing
-    //         }
-    //     }
-    // }
-
   const toggleComplete = () => {
     setCompleted(!completed);
   };

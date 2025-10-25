@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import ToDo from './pages/ToDo.jsx'
+import LogIn from './pages/LogIn.jsx'
 import {
   BrowserRouter as Router,
   Routes,
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route exact path="/" element={<App />} />
         <Route exact path="/todo" element={<ToDo />} />
+        <Route exact path="/login" element={<LogIn />} />
       </Routes>
     </Router>
   </StrictMode>,
