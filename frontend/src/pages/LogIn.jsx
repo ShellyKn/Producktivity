@@ -38,13 +38,7 @@ function LogIn() {
                         />
                     </div>
                 </form>
-                <Link to="/todo">
-                    <button
-                    className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
-                    >
-                    Sign in With Google
-                    </button>
-                </Link>
+
                 <Link to="/todo">
                     <button
                     className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
@@ -52,7 +46,18 @@ function LogIn() {
                     Log In/Sign Up
                     </button>
                 </Link>
+
+                <p className="m-auto">OR</p>
+                <Link to="/todo">
+                    <button
+                    className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
+                    >
+                    Sign in With Google
+                    </button>
+                </Link>
             </div>
+
+            <img className="m-auto" src="art/duckFace.png" style={{ height: '100px', width: '100px' }}></img>
         </div>
     );
 }
