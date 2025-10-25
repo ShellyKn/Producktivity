@@ -53,7 +53,7 @@ function Task({ taskData, isBlankTask, theTasks, setTheTasks }) {
               isBlankTask
                 ? "border-dotted border-[#2F4858]"
                 : completed
-                ? "bg-green-500 border-[#2F4858]"
+                ? "bg-[#2F4858] border-[#2F4858]"
                 : "border-[#2F4858]"
             }`}
           ></button>

@@ -54,7 +54,7 @@ function LogIn() {
                     >
                     Sign in With Google
                     </button>
-                </Link>
+                </Link> 
             </div>
 
             <img className="m-auto" src="art/duckFace.png" style={{ height: '100px', width: '100px' }}></img>
