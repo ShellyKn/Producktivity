@@ -38,14 +38,21 @@ function LogIn() {
                         />
                     </div>
                 </form>
-                    <Link to="/todo">
-                        <button
-                        className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
-                        >
-                        Log In/Sign Up
-                        </button>
-                    </Link>
-                </div>
+                <Link to="/todo">
+                    <button
+                    className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
+                    >
+                    Sign in With Google
+                    </button>
+                </Link>
+                <Link to="/todo">
+                    <button
+                    className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
+                    >
+                    Log In/Sign Up
+                    </button>
+                </Link>
+            </div>
         </div>
     );
 }

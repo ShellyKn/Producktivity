@@ -117,12 +117,12 @@ function ToDo() {
           <div className="flex-col flex-1 py-5 px-10">
             <h1 className="text-[48px]">leaderboard:</h1>
             <div className="flex-1 flex flex-col justify-between border-4 border-[#2F4858] rounded-lg items-center p-5">
-              <h1 className="text-3xl underline">1st axaleaa</h1>
-              <h1 className="text-3xl underline">2nd academicSam</h1>
-              <h1 className="text-3xl underline">3rd prof_stur</h1>
-              <h1 className="text-3xl underline">4th undrcvr_dUCK</h1>
-              <h1 className="text-3xl underline">5th aChillGuy</h1>
-              <h1 className="text-3xl underline">6th willy</h1>
+              <h1 className="text-3xl underline mt-4">1st axaleaa</h1>
+              <h1 className="text-3xl underline mt-4">2nd academicSam</h1>
+              <h1 className="text-3xl underline mt-4">3rd prof_stur</h1>
+              <h1 className="text-3xl underline mt-4">4th undrcvr_dUCK</h1>
+              <h1 className="text-3xl underline mt-4">5th aChillGuy</h1>
+              <h1 className="text-3xl underline mt-4">6th willy</h1>
             </div>
           </div>
         </div>
