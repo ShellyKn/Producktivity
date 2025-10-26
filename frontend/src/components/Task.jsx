@@ -4,8 +4,30 @@ import {useState} from "react";
 // Task due date - probably just a string value again or some sort of date type
 // Task notes - string value
 
-function Task({taskData, isBlankTask}) {
+function Task({taskData, isBlankTask, theTasks, setTheTasks}) {
+    // Need a use effect to load the data
     const [taskName, setTaskName] = useState(taskData.name);
+
+    const newTaskHandler = (value) => {
+        if (event.key == "Enter") {
+            if (value !== "") {
+                // Add it to the tasks 
+                setTheTasks(
+                    [
+                        ...theTasks,
+                        {
+                            name: value,
+                            due_date: "10/3/1015",
+                            notes: "no notes"
+                        }
+                    ]
+                );
+                value = "";
+            } else {
+                // Do nothing
+            }
+        }
+    }
 
     return (
         <div className="flex flex-col gap-4 w-full my-4">
@@ -23,12 +45,17 @@ function Task({taskData, isBlankTask}) {
 
                 {/* Actual task name */}
                 {!isBlankTask && (
-                    <input type="text" id="username" name="username" className="text-lg flex-1 bg-[#FAFAF0] text-[#2F4858] focus:border-none focus:outline-none" defaultValue={taskName}>
+                    <input type="text" id="username" name="username" 
+                        className="text-lg flex-1 bg-[#FAFAF0] text-[#2F4858] focus:border-none focus:outline-none" 
+                        defaultValue={taskName}>
                     </input>
                 )}
 
                 {isBlankTask && (
-                    <input type="text" id="username" name="username" className="text-lg flex-1 bg-[#FAFAF0] text-[#2F4858] focus:border-none focus:outline-none" placeholder="put some text here">
+                    <input type="text" id="username" name="username" 
+                        className="text-lg flex-1 bg-[#FAFAF0] text-[#2F4858] focus:border-none focus:outline-none" 
+                        placeholder="put some text here"
+                        onKeyDown={e => newTaskHandler(e.target.value)}>
                     </input>
                 )}
                 
