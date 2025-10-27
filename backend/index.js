@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { connectToDatabase, closeDatabase } from "./database/database.js";
-import { userModel, taskModel, followModel } from "./database/models.js";
+import { connectToDatabase, closeDatabase } from "./config/database.js";
+import { userModel } from "./models/User.model.js";
+import { taskModel } from "./models/Task.model.js";
+import { followModel } from "./models/Follow.model.js";
 
 dotenv.config();
 const app = express();
