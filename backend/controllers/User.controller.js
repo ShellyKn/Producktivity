@@ -88,7 +88,7 @@ export const getUserProfile = async (req, res) => {
 
 export const updateUserStreak = async (req, res) => {
     try {
-        const { userID } = req.params;
+        const { userId } = req.params;
         const { count } = req.body;
 
         const result = await userModel.updateStreak(userId, count);
