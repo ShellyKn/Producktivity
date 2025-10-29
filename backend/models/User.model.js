@@ -1,5 +1,6 @@
 import {getDatabase} from '../config/database.js';
 import { toObjectId, isValidObjectId } from '../utils/objectId.js';
+import bcrypt from 'bcrypt';
 
 // User Model Operations
 export class UserModel {
@@ -15,11 +16,14 @@ export class UserModel {
     async create(userData) {
         const collection = await this.getCollection();
 
+        // Hash the password before storing
+        const passwordHash = await bcrypt.hash(userData.password, 10);
+
         const user = {
             email: userData.email, 
             userName: userData.userName,
             name: userData.name,
-            passwordHash: userData.passwordHash,
+            passwordHash: passwordHash,
             streak: { count: 0 },
             createdAt: new Date(),
             updatedAt: new Date()
@@ -27,6 +31,20 @@ export class UserModel {
 
         const result = await collection.insertOne(user);
         return { ...user, _id: result.insertedId };
+    }
+
+    // Verify password during login
+    async verifyPassword(email, password) {
+        const user = await this.findByEmail(email);
+        if (!user) {
+            return null;
+        }
+        
+        const isValid = await bcrypt.compare(password, user.passwordHash);
+        if (isValid) {
+            return user;
+        }
+        return null;
     }
 
     // Find user by email
@@ -49,7 +67,7 @@ export class UserModel {
             throw new Error("Invalid user ID format");
         }
 
-        return await collection.findOne({ _id: userId });
+        return await collection.findOne({ _id: objectId });
     }
 
     // Find user by UserName

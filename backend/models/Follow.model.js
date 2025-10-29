@@ -22,8 +22,8 @@ export class FollowModel {
         }
 
         const follow = {
-            followerId,
-            followeeId,
+            followerId: followerObjectId,
+            followeeId: followeeObjectId,
             createdAt: new Date()
         };
         

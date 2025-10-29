@@ -2,18 +2,18 @@ import { userModel } from '../models/User.model.js'
 
 export const registerUser = async (req, res) => {
     try {
-        const { email, userName, name, passwordHash } = req.body;
+        const { email, userName, name, password } = req.body;
 
-        if (!email || !userName || !name || ! passwordHash) {
+        if (!email || !userName || !name || !password) {
             return res.status(400).json({ error: "Missing required fields!" })
         }
 
         const existingUser = await userModel.findByEmail(email);
         if (existingUser) {
-            return res.status(409).jason({ error: "User already exists!" })
+            return res.status(409).json({ error: "User already exists!" })
         }
 
-        const user = await userModel.create({ email, userName, name, passwordHash});
+        const user = await userModel.create({ email, userName, name, password});
 
         res.status(201).json({
             message: "User created successfully!",
@@ -41,13 +41,10 @@ export const loginUser = async (req, res) => {
         return res.status(400).json({ error: "Email and password are required!" });
       }
   
-      const user = await userModel.findByEmail(email);
+      const user = await userModel.verifyPassword(email, password);
       if (!user) {
-        return res.status(401).json({ error: "Invalid credentials!" });
+        return res.status(401).json({ error: "Invalid email or password!" });
       }
-  
-      //! RETURNS USER WITHOUT PASSWORD HASH
-      // password logic here? 
 
       res.json({
         message: "Login successful",

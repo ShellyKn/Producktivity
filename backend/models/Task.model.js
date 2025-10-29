@@ -15,13 +15,13 @@ export class TaskModel {
     async create(taskData) {
       const collection = await this.getCollection();
 
-      const ownerId = toObjectId(taskData.ownerId);
-      if (!ownerId) {
+      const ownerObjectId = toObjectId(taskData.ownerId);
+      if (!ownerObjectId) {
         throw new Error("Invalid owner ID format");
       }
 
       const task = {
-        ownerId: taskData.ownerId,
+        ownerId: ownerObjectId,
         title: taskData.title,
         status: taskData.status || 'pending',
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : null,
@@ -71,7 +71,7 @@ export class TaskModel {
             throw new Error('Invalid task ID format');
         }
 
-      return await collection.findOne({ _id: taskId });
+      return await collection.findOne({ _id: objectId });
     }
   
     // Update task
@@ -96,7 +96,7 @@ export class TaskModel {
       }
   
       const result = await collection.updateOne(
-        { _id: taskId },
+        { _id: objectId },
         { $set: updateFields }
       );
       return result;
@@ -111,7 +111,7 @@ export class TaskModel {
         throw new Error('Invalid task ID format');
       }
 
-      const result = await collection.deleteOne({ _id: taskId });
+      const result = await collection.deleteOne({ _id: objectId });
       return result;
     }
   

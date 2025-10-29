@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTask, getTasksByUser, getTasksById, updateTask, deleteTask, getTaskStats } from '../controllers/Task.controller.js';
+import { createTask, getTasksByUser, getTaskById, updateTask, deleteTask, getTaskStats } from '../controllers/Task.controller.js';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/user/:ownerId/stats', getTaskStats);
 
 //GET - /api/tasks/user/:ownerId
-router.get('user/:ownerId', getTasksByUser);
+router.get('/user/:ownerId', getTasksByUser);
 
 // GET - /api/tasks/:taskId
 router.get('/:taskId', getTaskById);
