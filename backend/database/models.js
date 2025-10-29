@@ -1,5 +1,5 @@
 import { getDatabase } from './database.js';
-
+import bcrypt from 'bcrypt';
 // User Model Operations
 export class UserModel {
   constructor() {
@@ -11,14 +11,19 @@ export class UserModel {
     return db.collection(this.collectionName);
   }
 
-  // Create a new user
+  // Create a new user 
+  // Added bcrypt to hash password for the frontend
   async create(userData) {
     const collection = await this.getCollection();
+    
+    // Hash the password before storing
+    const passwordHash = await bcrypt.hash(userData.password, 10);
+    
     const user = {
       email: userData.email,
       userName: userData.userName,
       name: userData.name,
-      passwordHash: userData.passwordHash,
+      passwordHash: passwordHash,
       streak: { count: 0 },
       createdAt: new Date(),
       updatedAt: new Date()
@@ -26,6 +31,20 @@ export class UserModel {
     
     const result = await collection.insertOne(user);
     return { ...user, _id: result.insertedId };
+  }
+
+  // Verify password during login
+  async verifyPassword(email, password) {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      return null;
+    }
+    
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (isValid) {
+      return user;
+    }
+    return null;
   }
 
   // Find user by email

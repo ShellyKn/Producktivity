@@ -42,12 +42,12 @@ app.get("/api/health", async (req, res) => {
 
 // ==================== USER ROUTES ====================
 
-// Register a new user
+// Register a new user (now accepts plain password)
 app.post("/api/users/register", async (req, res) => {
   try {
-    const { email, userName, name, passwordHash } = req.body;
+    const { email, userName, name, password } = req.body;
     
-    if (!email || !userName || !name || !passwordHash) {
+    if (!email || !userName || !name || !password) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -61,7 +61,7 @@ app.post("/api/users/register", async (req, res) => {
       email,
       userName,
       name,
-      passwordHash
+      password 
     });
 
     res.status(201).json({
@@ -80,18 +80,18 @@ app.post("/api/users/register", async (req, res) => {
   }
 });
 
-// Login user (find by email)
+// Login user (with email and password authentication)
 app.post("/api/users/login", async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, password } = req.body;
     
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const user = await userModel.findByEmail(email);
+    const user = await userModel.verifyPassword(email, password);
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
     res.json({

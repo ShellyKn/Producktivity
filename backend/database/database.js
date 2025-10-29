@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const db_password = process.env.DB_PASSWORD;
-const db_name = process.env.DB_NAME;
-const uri = `mongodb+srv://${db_name}:${db_password}@cluster0.kcznebn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const db_user = process.env.DB_USER;
+const uri = `mongodb+srv://${db_user}:${db_password}@cluster0.kcznebn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
