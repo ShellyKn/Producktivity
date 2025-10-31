@@ -21,16 +21,17 @@ function App() {
   return (
     <div className="bg-[#FAFAF0] **overflow-hidden**">
 
-      <Header left_side={<Logo></Logo>} right_side={<Link to="/todo"><button className="h-[60px] font-josefin text-[30px] rounded-full bg-[#EDEEDE] text-[#5A311F] px-7 py-2">Sign Up / Log In</button></Link>}></Header>
+      <Header left_side={<Logo></Logo>} right_side={<Link to="/login"><button className="h-[60px] font-josefin text-[30px] rounded-full bg-[#EDEEDE] text-[#5A311F] px-7 py-2">Sign Up / Log In</button></Link>}></Header>
       {/* <h1 className="text-3xl font-bold text-black font-inria-sans">{message}</h1> */}
       <div className="flex items-center justify-center h-screen">
-        <div className="w-3/4 items-center">
+        <div className="w-3/4 items-center relative">
+          <img className="absolute top-[25%] right-[10%]" src="art/quak.png" style={{ height: '200px', width: '200px' }}></img>
           <img src="art/temp_pond.svg" className="w-full"></img>
-          <div className="flex flex-col items-center absolute top-1/2 left-1/2 -translate-x-1/2">
+          <div className="flex flex-col items-center absolute top-1/3 left-1/2 -translate-x-1/2">
             <h1 className="text-3xl w-full text-[#5A311F] text-center p-6">
               <i>Get things <strong>duck duck done</strong> with this gamified to-do list app!</i>
             </h1>
-            <Link to="/todo">
+            <Link to="/login">
               <button className="drop-shadow-md text-xl px-20 bg-[#FAFAF0] text-[#5A311F] rounded-full p-3 hover:bg-[#5A311F] hover:text-[#FAFAF0] transition duration-700 ease-in-out w-fit border border-[#5A311F]">
                 get started!
               </button>
