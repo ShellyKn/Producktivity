@@ -1,140 +1,130 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Header from "./../components/Header.jsx";
 import Logo from "./../components/Logo.jsx";
 import TaskLoader from "./../components/TaskLoader.jsx";
 import Nav from "../components/Nav.jsx";
 import TaskModal from "../components/TaskModal.jsx";
-import Dashboard from "../pages/Dashboard.jsx"
+import Dashboard from "../pages/Dashboard.jsx";
+import Profile from "../pages/Profile.jsx";
+import Calendar from "./Calendar.jsx";
+import { getTasks as apiGetTasks, createTask as apiCreateTask, updateTask as apiUpdateTask, deleteTask as apiDeleteTask } from "../lib/api.js";
+
+function localDateFromPicker(yyyymmdd) {
+  if (!yyyymmdd) return null;
+  const [y, m, d] = yyyymmdd.split('-').map(Number);
+  return new Date(y, m - 1, d, 12, 0, 0, 0);
+}
 
 function ToDo() {
-  // Used for keeping track of what "page" we are on in the navigation menu 
-  const [pageIndex, setPageIndex] = useState(0);
-  const [numTasks, setNumTasks] = useState(3);
-  const [streakDays, setStreakDays] = useState(10);
+  const [pageIndex, setPageIndex] = useState(0); //used for switching pages
   const [quote, setQuote] = useState("You're doing ducktastic!");
   const [isModalOpen, setModalOpen] = useState(false);
+  const [tasks, setTasks] = useState([]);
 
-  // Empty array on load (needs to be filled in with a fetch to the db)
-  const [theTasks, setTheTasks] = useState({
-    yesterday: [
-      { name: "finish mockups", due_date: "09/29/25", notes: "done", completed: true },
-      { name: "lab 1", due_date: "09/29/25", notes: "crossed out", completed: false },
-    ],
-    today: [
-      { name: "finish mockups", due_date: "09/30/25", notes: "", completed: false },
-      { name: "finish deliverables for Sprint 1", due_date: "09/30/25", notes: "", completed: false },
-      { name: "meeting at 5pm for S8D4", due_date: "09/30/25", notes: "", completed: false },
-    ],
-    tomorrow: [
-      { name: "wireframes", due_date: "10/01/25", notes: "", completed: false },
-      { name: "hw2", due_date: "10/01/25", notes: "", completed: false },
-    ],
-  });
-
-//   TODO: This is a VERY quick fix bc of the deadline tn. The tasks can't be set up the way they are above bc then
-// it's no longer an array of tasks, which is what the Task components assume. We'll fix this later, but for now this works:
-  const [theActualTasks, setTheActualTasks] = useState(
-    [
-      { name: "finish mockups", due_date: "09/30/25", notes: "", completed: false },
-      { name: "finish deliverables for Sprint 1", due_date: "09/30/25", notes: "", completed: false },
-      { name: "meeting at 5pm for S8D4", due_date: "09/30/25", notes: "", completed: false },
-    ]
-  );
-
-
+  // Fetch on mount (after login)
   useEffect(() => {
-    // alert(pageIndex);
-  });
+    (async () => {
+      try {
+        const list = await apiGetTasks();
+        setTasks(list);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, []);
 
-  useEffect(() => {
-  console.log("Current page index:", pageIndex);
-}, [pageIndex]);
+  // Potential stats that we can derrive from the backend later 
+  // const numTasks = 
+  //   () => tasks.filter(t => t.status === 'completed').length,
+  //   [tasks]
+  // 
+  // const streakDays = .....
+
+  // Creates a task
+  async function handleCreateTask({ name, due_date, notes, priority }) {
+    const payload = {
+      title: name,
+      dueDate: localDateFromPicker(due_date),
+      notes,
+      status: 'pending',
+      priority: Number(priority) || 1,
+    };
+    const created = await apiCreateTask(payload);
+    setTasks(prev => [created, ...prev]);
+  }
+
+  // Update tasks completion status
+  async function handleToggleComplete(task) {
+    const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+    await apiUpdateTask(task._id, { status: newStatus });
+    setTasks(prev => prev.map(t => t._id === task._id ? { ...t, status: newStatus, updatedAt: new Date() } : t));
+  }
+
+  // Updates task
+  async function handleUpdate(taskId, partial) {
+    await apiUpdateTask(taskId, partial);
+    setTasks(prev => prev.map(t => t._id === taskId ? { ...t, ...partial, updatedAt: new Date() } : t));
+  }
+
+  // Delete task
+  async function handleDelete(taskId) {
+    await apiDeleteTask(taskId);
+    setTasks(prev => prev.filter(t => t._id !== taskId));
+  }
 
   return (
-    <div className="bg-[#FAFAF0] h-screen flex flex-col">
+    <div className="bg-[#FAFAF0] h-screen flex flex-col overflow-hidden">
       <Header
         left_side={<Logo />}
         right_side={
           <Nav
-            pages={["PROFILE", "DASHBOARD"]}
+            pages={["PROFILE", "DASHBOARD", "CALENDAR"]}  
             setIndex={setPageIndex}
             index={pageIndex}
           />
         }
       />
 
+      {/* Goes to the dashboard tab: This order can be changed in the future */}
       {pageIndex === 1 && (
-        <Dashboard
-          theTasks={theTasks}
-          setTheTasks={setTheTasks}
-          modalOpen={isModalOpen}
+         <Dashboard
+          tasks={tasks}
+          onToggleComplete={handleToggleComplete}
           setModalOpen={setModalOpen}
+          onDelete={handleDelete}
+          onEdit={handleUpdate}
+         />
+      )}
+
+      {/* Goes to the profile tab */}
+      {pageIndex === 0 && (
+        <Profile
+          tasks={tasks}
+          quote={quote}
+          setModalOpen={setModalOpen}
+          onToggle={handleToggleComplete}
+          onEdit={handleUpdate}
+          onDelete={handleDelete}
         />
       )}
 
-      {pageIndex === 0 && (
-        // {/* Main div for the three sections */}
-        <div className="font-jua w-full flex-1 flex text-[#2F4858]">
-          {/* LEFT PANEL */}
-          <div className="flex-1 py-5 px-10 flex flex-col gap-10 justify-between">
-            {/* Profile section */}
-            <div className="flex-1 flex flex-col justify-between border-4 border-[#2F4858] rounded-lg items-center p-5">
-              <h1 className="text-3xl">Profile</h1>
-              <div className="flex flex-col items-center">
-                <h1 className="text-[60px] text-[#2F4858]">{numTasks}</h1>
-                <p className="text-lg">tasks done today</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <h1 className="text-[60px] text-[#2F4858]">{streakDays}-DAY</h1>
-                <p className="text-lg">streak</p>
-              </div>
-              <button className="text-3xl">See more!</button>
-            </div>
 
-            {/*TODO: Quote API here */}
-            <div className="flex flex-col h-fit border-4 border-[#2F4858] rounded-lg items-center p-5">
-              <h1 className="text-xl">{quote}</h1>
-            </div>
-          </div>
+      {/* Goes to the calendar tab */}
+      {pageIndex === 2 && (
+      <Calendar
+        tasks={tasks}
+        onCreate={handleCreateTask} 
+        onEdit={handleUpdate}
+        onDelete={handleDelete}
+        onToggle={handleToggleComplete}
+      />
+    )}
 
-          {/* MIDDLE PANEL (todo list part) */}
-          <div className="flex-none flex-col gap-4 py-5 px-10 w-1/2 overflow-y-visible">
-            <div className="w-full flex justify-between items-center mb-1">
-              <h1 className="text-[48px]">to-do today:</h1>
-              <button
-                className="border-4 border-[#2F4858] rounded-lg px-4 text-[24px]"
-                onClick={() => setModalOpen(true)}
-              >
-                + add task
-              </button>
-            </div>
-            <div className="overflow-scroll">
-                <TaskLoader tasks={theActualTasks} theTasks={theActualTasks} setTheTasks={setTheActualTasks} />
-            </div>
-          </div>
-
-          {/* RIGHT PANEL */}
-          <div className="flex-col flex-1 py-5 px-10">
-            <h1 className="text-[48px]">leaderboard:</h1>
-            <div className="flex-1 flex flex-col justify-between border-4 border-[#2F4858] rounded-lg items-center p-5">
-              <h1 className="text-3xl underline mt-4">1st axaleaa</h1>
-              <h1 className="text-3xl underline mt-4">2nd academicSam</h1>
-              <h1 className="text-3xl underline mt-4">3rd prof_stur</h1>
-              <h1 className="text-3xl underline mt-4">4th undrcvr_dUCK</h1>
-              <h1 className="text-3xl underline mt-4">5th aChillGuy</h1>
-              <h1 className="text-3xl underline mt-4">6th willy</h1>
-            </div>
-            <img src="art/duck.png" className="mt-4 w-1/2 m-auto"></img>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL */}
-      <TaskModal 
-        isOpen={isModalOpen} 
-        onClose={() => setModalOpen(false)} 
-        theTasks={theActualTasks} 
-        setTheTasks={setTheActualTasks} 
+      {/* MODAL: Create new task */}
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreate={handleCreateTask}
       />
     </div>
   );

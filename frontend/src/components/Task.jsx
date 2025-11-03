@@ -1,103 +1,122 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-function Task({ taskData, isBlankTask, theTasks, setTheTasks }) {
-  const [taskName, setTaskName] = useState(taskData.name || "");
-  const [dueDate, setDueDate] = useState(taskData.due_date || "");
-  const [notes, setNotes] = useState(taskData.notes || "");
-  const [completed, setCompleted] = useState(taskData.completed || false);
-  const [isExpanded, setExpanded] = useState(false);
+function toInputDate(d) {
+  if (!d) return "";
+  const x = new Date(d);
+  const yyyy = x.getFullYear();
+  const mm = String(x.getMonth() + 1).padStart(2, "0");
+  const dd = String(x.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function fromInputLocalNoon(yyyymmdd) {
+  if (!yyyymmdd) return null;
+  const [y, m, d] = yyyymmdd.split("-").map(Number);
+  return new Date(y, m - 1, d, 12, 0, 0, 0); // avoid tz drift
+}
 
-  const handleNewTask = (e) => {
-    if (e.key === "Enter") {
-      const value = e.target.value.trim();
-      if (value !== "") {
-        setTheTasks([
-          ...theTasks,
-          {
-            name: value,
-            due_date: "",
-            notes: "",
-            completed: false,
-          }
-        ]);
-        setTaskName("");
-      }
-    }
+function Task({ task, onToggle, onEdit, onDelete }) {
+  const [title, setTitle] = useState(task.title || "");
+  const [notes, setNotes] = useState(task.notes || "");
+  const [due, setDue] = useState(toInputDate(task.dueDate));
+  const [expanded, setExpanded] = useState(false);
+
+  const completed = task.status === "completed";
+
+  useEffect(() => {
+    setTitle(task.title || "");
+    setNotes(task.notes || "");
+    setDue(toInputDate(task.dueDate));
+  }, [task._id, task.title, task.notes, task.dueDate]);
+
+  const save = async (partial) => {
+    await onEdit(partial);
   };
 
-  const toggleComplete = () => {
-    setCompleted(!completed);
-  };
-
-  const toggleExpand = () => {
-    if (!isBlankTask) setExpanded((prev) => !prev);
-  };
+  const toggleExpanded = () => setExpanded(v => !v);
 
   return (
     <div
-    className={`p-2 my-2 font-jua text-[#2F4858] transition-all duration-200 ${
-        isExpanded ? "border-4 border-[#2F4858] rounded-xl bg-[#FAFAF0]" : ""
-    }`}
-    onClick={toggleExpand}
+      className={`p-2 my-2 font-jua text-[#2F4858] transition-all duration-200 cursor-pointer
+        ${expanded ? "border-4 border-[#2F4858] rounded-xl bg-[#FAFAF0]" : ""}`}
+      onClick={toggleExpanded}
     >
+      {/* top row */}
+      <div className="flex items-center gap-4">
+        {/* checkbox */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          className={`w-[30px] h-[30px] rounded-xl border-4 task-control
+            ${completed ? "bg-[#2F4858] border-[#2F4858]" : "border-[#2F4858]"}`}
+          title="Toggle complete"
+        />
 
-      <div className="flex flex-col gap-4">
-        {/* Top row: checkbox + title */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // prevent toggle
-              toggleComplete();
-            }}
-            className={`w-[30px] h-[30px] rounded-xl border-4 ${
-              isBlankTask
-                ? "border-dotted border-[#2F4858]"
-                : completed
-                ? "bg-[#2F4858] border-[#2F4858]"
-                : "border-[#2F4858]"
+        {!expanded ? (
+          <span
+            className={`flex-1 text-lg select-none ${
+              completed ? "line-through opacity-50" : ""
             }`}
-          ></button>
-
+          >
+            {title || "Untitled task"}
+          </span>
+        ) : (
           <input
             type="text"
-            value={taskName}
-            onChange={(e) => setTaskName(e.target.value)}
-            // onKeyDown={isBlankTask ? handleNewTask : undefined}
-            onKeyDown={isBlankTask ? (e) => handleNewTask(e) : ""}
-            placeholder={isBlankTask ? "Add a new task..." : ""}
-            className="flex-1 bg-[#FAFAF0] text-lg focus:outline-none"
-            onClick={(e) => e.stopPropagation()} // prevent toggle
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={(e) => {
+              const prev = task.title || "";
+              if (prev !== e.target.value) save({ title: e.target.value });
+            }}
+            className="flex-1 bg-[#FAFAF0] text-lg focus:outline-none focus:ring-0 task-control"
+            onClick={(e) => e.stopPropagation()}
+            autoFocus
           />
-        </div>
-
-        {/* Expanded section: deadline + notes */}
-        {isExpanded && !isBlankTask && (
-          <>
-            <div className="flex items-center gap-2">
-              <label className="text-sm">Due:</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="border-2 border-[#2F4858] rounded-lg px-2 py-1 bg-white"
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
-
-            <textarea
-              rows="2"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add notes..."
-              className="w-full border-2 border-[#2F4858] rounded-lg p-2 bg-white"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </>
         )}
 
-        {/* Divider (always visible, not interactive) */}
-        <div className="w-full h-0 border-4 border-[#2F4858] rounded-lg opacity-70 pointer-events-none"></div>
+        {/* delete */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="text-sm border-2 border-[#2F4858] rounded px-2 py-1 hover:bg-[#2F4858] hover:text-white task-control"
+        >
+          Delete
+        </button>
       </div>
+
+      {/* expanded fields */}
+      {expanded && (
+        <>
+          <div className="mt-3 flex items-center gap-2">
+            <label className="text-sm">Due:</label>
+            <input
+              type="date"
+              value={due}
+              onChange={(e) => setDue(e.target.value)}
+              onBlur={() => {
+                const prev = toInputDate(task.dueDate);
+                if (prev === due) return; // nothing changed → don't send
+                save({ dueDate: due ? fromInputLocalNoon(due) : null });
+              }}
+              className="border-2 border-[#2F4858] rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-0 task-control"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          <textarea
+            rows="2"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={() => {
+              const prev = task.notes || "";
+              if (prev !== notes) save({ notes });
+            }}
+            placeholder="Add notes..."
+            className="mt-2 w-full border-2 border-[#2F4858] rounded-lg p-2 bg-white focus:outline-none focus:ring-0 task-control"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </>
+      )}
+
+      <div className="w-full h-0 border-4 border-[#2F4858] rounded-lg opacity-70 pointer-events-none mt-2"></div>
     </div>
   );
 }

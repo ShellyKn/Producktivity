@@ -4,8 +4,62 @@ import {
   BrowserRouter as Router,
   Link
 } from "react-router-dom";
+import {useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 function LogIn() {
+    const navigate = useNavigate();
+    const [form, setForm] = useState({ email: "", password: "" });
+    const [error, setError] = useState("");
+
+    const handleChange = (e) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        try {
+        const res = await fetch("http://localhost:4000/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(form),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Login failed");
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        navigate("/todo");
+        } catch (err) {
+        setError(err.message);
+        }
+    };
+
+      const handleRegister = async (e) => {
+        e.preventDefault();
+        setError("");
+        try {
+        const res = await fetch("http://localhost:4000/api/users/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            email: form.email,
+            userName: form.email.split("@")[0],
+            name: form.email.split("@")[0],
+            password: form.password,
+            }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Registration failed");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/todo");
+        } catch (err) {
+        setError(err.message);
+        }
+    };
+
     return (
         <div className="bg-[#FAFAF0] h-screen flex flex-col">
             <Header
@@ -20,43 +74,38 @@ function LogIn() {
                 </div>
 
                 <form className="flex flex-col gap-4">
-                    <div>
-                        <label className="block text-lg mb-1">Username:</label>
-                        <input
-                        type="text"
-                        placeholder="who goes there?"
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="email"
+                        value={form.email}
+                        onChange={handleChange}
                         className="w-full border-2 border-[#464141] rounded-lg p-2 bg-white"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-lg mb-1">Password:</label>
-                        <input
+                    />
+                    <input
                         type="password"
-                        placeholder="shh it's a secret..."
+                        name="password"
+                        placeholder="password"
+                        value={form.password}
+                        onChange={handleChange}
                         className="w-full border-2 border-[#464141] rounded-lg p-2 bg-white"
-                        />
-                    </div>
+                    />
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                    <button
+                        onClick={handleSubmit}
+                        className="w-full bg-[#464141] text-white text-xl py-2 rounded-lg hover:bg-[#1e3442]"
+                    >
+                        Log In
+                    </button>
+                    <button
+                        onClick={handleRegister}
+                        className="w-full bg-[#464141] text-white text-xl py-2 rounded-lg hover:bg-[#1e3442]"
+                    >
+                        Sign Up
+                    </button>
                 </form>
-
-                <Link to="/todo">
-                    <button
-                    className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
-                    >
-                    Log In/Sign Up
-                    </button>
-                </Link>
-
-                <p className="m-auto">OR</p>
-                <Link to="/todo">
-                    <button
-                    className="w-full m-auto mt-2 bg-[#464141] text-white text-xl px-2 py-2 rounded-lg hover:bg-[#1e3442]"
-                    >
-                    Sign in With Google
-                    </button>
-                </Link> 
             </div>
-
             <img className="m-auto" src="art/duckFace.png" style={{ height: '100px', width: '100px' }}></img>
         </div>
     );
