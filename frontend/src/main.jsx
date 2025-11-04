@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import ToDo from './pages/ToDo.jsx'
 import LogIn from './pages/LogIn.jsx'
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import {
   BrowserRouter as Router,
   Routes,
@@ -15,8 +16,8 @@ createRoot(document.getElementById('root')).render(
     <Router>
       <Routes>
         <Route exact path="/" element={<App />} />
-        <Route exact path="/todo" element={<ToDo />} />
         <Route exact path="/login" element={<LogIn />} />
+        <Route exact path="/todo" element={<ProtectedRoute><ToDo /></ProtectedRoute>} />
       </Routes>
     </Router>
   </StrictMode>,
