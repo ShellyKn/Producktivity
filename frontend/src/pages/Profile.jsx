@@ -20,9 +20,13 @@ export default function Profile({
   onDelete,
 }) {
   const numTasks = tasks.filter((t) => t.status === "completed").length;
+
+  // FILTER LOGIC HERE TO CHANGE: Currently filters by just the day which can be one filter
+  // Go to the bottom where it uses "TaskLoader", and change which array of tasks is being sent in
   const todaysTasks = tasks.filter(t =>
-    t.dueDate ? isSameDay(new Date(t.dueDate), today) : true // or false if you don't want "no due date"
+    t.dueDate ? isSameDay(new Date(t.dueDate), today) : true 
     );
+
   return (
     <div className="font-jua w-full flex-1 flex text-[#2F4858] bg-[#FAFAF0] px-8 py-6 gap-8">
       {/* LEFT PANEL */}
