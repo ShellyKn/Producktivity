@@ -43,7 +43,7 @@ export default function WeeklyStreak({ tasks }) {
   const weekDays = useMemo(() => getWeekDays(weekOffset), [weekOffset]);
 
   return (
-    <div className="relative w-full font-jua mt-6">
+    <div className="relative w-full font-jua my-6">
       {/* Week Header and navigation buttons */}
       <div className="flex justify-between items-center mb-2">
         <p className="text-3xl">WEEKLY STREAK:</p>
