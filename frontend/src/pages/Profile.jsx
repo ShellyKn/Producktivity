@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import TaskLoader from "../components/TaskLoader.jsx";
 
 function startOfDay(d) {
@@ -14,8 +14,8 @@ function isSameDay(a, b) {
 const today = startOfDay(new Date());
 
 const filters = Object.freeze({
-    PRIORITY: "Priority",
-    DATE: "Date",
+  PRIORITY: "Priority",
+  DATE: "Date",
 });
 
 export default function Profile({
@@ -27,26 +27,41 @@ export default function Profile({
   onEdit,
   onDelete,
 }) {
-  const numTasks = tasks.filter((t) => t.status === "completed").length;
-
-  // const [todaysTasks, setTodaysTasks] = useState(tasks);
-
-  const [todaysTasks, setTodaysTasks] = useState(tasks);
+  const numTasks = tasks.filter((t) => {
+    if (t.status !== "completed") return false;
+    if (!t.completedAt) return isSameDay(new Date(t.updatedAt || t.dueDate || Date.now()), today);
+    return isSameDay(new Date(t.completedAt), today);
+  }).length;
 
   const [filter, setFilter] = useState(filters.PRIORITY);
 
   function toggleFilter() {
-    if (filter == filters.PRIORITY) {
-      setFilter(filters.DATE)
-      setTodaysTasks(tasks.toSorted(function(taskA, taskB){return new Date(taskA.dueDate) - new Date(taskB.dueDate)}))
-    } else {
-      setFilter(filters.PRIORITY)
-      setTodaysTasks(tasks.toSorted(function(taskA, taskB){return taskB.priority - taskA.priority}))
-    }
+    setFilter((prev) =>
+      prev === filters.PRIORITY ? filters.DATE : filters.PRIORITY
+    );
   }
 
-  // FILTER LOGIC HERE TO CHANGE: Currently filters by just the day which can be one filter
-  // Go to the bottom where it uses "TaskLoader", and change which array of tasks is being sent in
+  const baseTasks = useMemo(() => {
+    return tasks;
+  }, [tasks]);
+
+  // Sort the tasks according to current filter
+  const sortedTasks = useMemo(() => {
+    const arr = [...baseTasks];
+
+    if (filter === filters.DATE) {
+      arr.sort(
+        (a, b) =>
+          new Date(a.dueDate || 0) - new Date(b.dueDate || 0)
+      );
+    } else {
+      arr.sort(
+        (a, b) => (b.priority || 0) - (a.priority || 0)
+      );
+    }
+
+    return arr;
+  }, [baseTasks, filter]);
 
   return (
     <div className="font-jua w-full flex-1 flex text-[#2F4858] bg-[#FAFAF0] px-8 py-6 gap-8">
@@ -54,7 +69,6 @@ export default function Profile({
       <div className="w-[28%] flex flex-col gap-6">
         {/* Profile card */}
         <div className="relative border-4 border-[#2F4858] rounded-2xl p-5 bg-gradient-to-br from-[#FFF9E6] via-[#FAFAF0] to-[#F3F7FB] overflow-hidden">
-          {/* content */}
           <div className="relative flex flex-col gap-5">
             {/* User and basic info */}
             <div className="flex items-center gap-4">
@@ -129,10 +143,9 @@ export default function Profile({
         </div>
       </div>
 
-      {/* MIDDLE PANEL*/}
+      {/* MIDDLE PANEL */}
       <div className="w-[44%] flex flex-col gap-4 py-2">
         <div className="w-full flex justify-between items-center mb-1">
-          {/* Title of middle panel */}
           <div>
             <h1 className="text-[38px] leading-none">To-do:</h1>
             <p className="text-sm opacity-70 mt-1">
@@ -140,28 +153,32 @@ export default function Profile({
             </p>
           </div>
 
-          {/* Filtering button */}
-          <button 
-            className="border-4 border-[#2F4858] rounded-xl px-4 py-1.5 text-[20px]
-             hover:bg-[#2F4858] hover:text-white transition-colors"
-            onClick={() => toggleFilter()}
-          >
-            Filtered by: {filter}
-          </button>
 
-          {/* Adding a task button */}
-          <button
-            className="border-4 border-[#2F4858] rounded-xl px-4 py-1.5 text-[20px] 
-            hover:bg-[#2F4858] hover:text-white transition-colors"
-            onClick={() => setModalOpen(true)}
-          >
-            + add task
-          </button>
+          <div className="flex gap-2">     
+            {/* Toggle filter */}
+                <button
+                className="border-4 border-[#2F4858] rounded-xl px-4 py-1.5 text-[20px]
+                hover:bg-[#2F4858] hover:text-white transition-colors"
+                onClick={toggleFilter}
+            >
+                Filtered by: {filter}
+            </button>
+
+            {/* Add task */}
+            <button
+                className="border-4 border-[#2F4858] rounded-xl px-4 py-1.5 text-[20px] 
+                hover:bg-[#2F4858] hover:text-white transition-colors"
+                onClick={() => setModalOpen(true)}
+            >
+                + add task
+            </button>
+          </div>
+          
         </div>
 
-        <div className="flex-1 gap-1 overflow-y-auto ">
-          <TaskLoader className="mb-1"
-            tasks={todaysTasks}
+        <div className="flex-1 gap-1 overflow-y-auto">
+          <TaskLoader
+            tasks={sortedTasks}
             onToggle={onToggle}
             onEdit={onEdit}
             onDelete={onDelete}
@@ -185,7 +202,6 @@ export default function Profile({
           </div>
 
           <div className="mt-2 space-y-2">
-            {/* Ranks: fake data at the moment*/}
             <LeaderboardRow rank={1} name="axaleaa" points={96} accent="gold" />
             <LeaderboardRow rank={2} name="academicSam" points={88} accent="silver" />
             <LeaderboardRow rank={3} name="prof_stur" points={82} accent="bronze" />
@@ -214,7 +230,6 @@ function LeaderboardRow({ rank, name, points, accent }) {
   if (accent === "silver") badgeBg = "bg-slate-200";
   if (accent === "bronze") badgeBg = "bg-amber-500";
 
-  // Fake data, use points for now (0–100)
   const width = Math.max(10, Math.min(points, 100));
 
   return (

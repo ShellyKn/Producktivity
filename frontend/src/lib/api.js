@@ -40,3 +40,17 @@ export async function deleteTask(taskId) {
   if (!res.ok) throw new Error(data.error || 'Failed to delete task');
   return true;
 }
+
+export async function updateUserStreak(streak) {
+  const user = getUser();
+  if (!user?._id) throw new Error("No user in localStorage");
+
+  const res = await fetch(`${API_BASE}/users/${user._id}/streak`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(streak),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to update streak");
+  return data;
+}

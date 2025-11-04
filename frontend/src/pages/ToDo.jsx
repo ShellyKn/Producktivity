@@ -7,6 +7,7 @@ import TaskModal from "../components/TaskModal.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
 import Profile from "../pages/Profile.jsx";
 import Calendar from "./Calendar.jsx";
+
 import { getTasks as apiGetTasks, createTask as apiCreateTask, updateTask as apiUpdateTask, deleteTask as apiDeleteTask } from "../lib/api.js";
 
 function localDateFromPicker(yyyymmdd) {
@@ -55,10 +56,26 @@ function ToDo() {
 
   // Update tasks completion status
   async function handleToggleComplete(task) {
-    const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-    await apiUpdateTask(task._id, { status: newStatus });
-    setTasks(prev => prev.map(t => t._id === task._id ? { ...t, status: newStatus, updatedAt: new Date() } : t));
+    const newStatus = task.status === "completed" ? "pending" : "completed";
+
+    const payload = { status: newStatus };
+    if (newStatus === "completed") {
+      payload.completedAt = new Date();
+    } else {
+      payload.completedAt = null; 
+    }
+
+    await apiUpdateTask(task._id, payload);
+
+    setTasks(prev =>
+      prev.map(t =>
+        t._id === task._id
+          ? { ...t, ...payload, updatedAt: new Date() }
+          : t
+      )
+    );
   }
+
 
   // Updates task
   async function handleUpdate(taskId, partial) {
@@ -73,7 +90,7 @@ function ToDo() {
   }
 
   return (
-    <div className="bg-[#FAFAF0] h-screen flex flex-col overflow-hidden">
+    <div className="bg-[#FAFAF0] h-screen flex flex-col overflow-y-auto">
       <Header
         left_side={<Logo />}
         right_side={

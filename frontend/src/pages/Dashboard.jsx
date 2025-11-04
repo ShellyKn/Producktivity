@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TaskColumn from "../components/TaskColumn";
-import StreakDay from "../components/StreakDay";
 import PaginatedTaskBox from "../components/PaginatedTaskBox";
+import WeeklyStreak from "../components/WeeklyStreak";
+import { deriveStreakStats } from "../lib/streakUtils";
 
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
 function isSameDay(a, b) { return startOfDay(a).getTime() === startOfDay(b).getTime(); }
+
 const fmt = (d) => {
   if (!d) return "—";
   const dd = new Date(d);
@@ -13,10 +15,20 @@ const fmt = (d) => {
 };
 
 // Responsive version of the Columns view
-function DayColumnsResponsive({ yTasks, tTasks, tmTasks, onToggleComplete, onDelete, onEdit, yDate, tDate, tmDate }) {
+function DayColumnsResponsive({
+  yTasks,
+  tTasks,
+  tmTasks,
+  onToggleComplete,
+  onDelete,
+  onEdit,
+  yDate,
+  tDate,
+  tmDate,
+}) {
   const wrapRef = useRef(null);
   const [narrow, setNarrow] = useState(false);
-  const [slide, setSlide] = useState(1); // For the carousel
+  const [slide, setSlide] = useState(1);
 
   useEffect(() => {
     if (!wrapRef.current) return;
@@ -27,45 +39,71 @@ function DayColumnsResponsive({ yTasks, tTasks, tmTasks, onToggleComplete, onDel
     return () => ro.disconnect();
   }, []);
 
-  // Slideshow view if screen gets too small
-  const slides = useMemo(() => ([
-    { title: "YESTERDAY", date: yDate, tasks: yTasks },
-    { title: "TODAY",     date: tDate, tasks: tTasks },
-    { title: "TOMORROW",  date: tmDate, tasks: tmTasks },
-  ]), [yTasks, tTasks, tmTasks, yDate, tDate, tmDate]);
+  const slides = useMemo(
+    () => [
+      { title: "YESTERDAY", date: yDate, tasks: yTasks },
+      { title: "TODAY", date: tDate, tasks: tTasks },
+      { title: "TOMORROW", date: tmDate, tasks: tmTasks },
+    ],
+    [yTasks, tTasks, tmTasks, yDate, tDate, tmDate]
+  );
 
-  // Normal columns view if screen is large 
   if (!narrow) {
     return (
       <div ref={wrapRef} className="grid grid-cols-3 gap-6">
-        <TaskColumn title="YESTERDAY" date={yDate} tasks={yTasks} onToggle={onToggleComplete} onDelete={onDelete} onEdit={onEdit} />
-        <TaskColumn title="TODAY"     date={tDate} tasks={tTasks}  onToggle={onToggleComplete} onDelete={onDelete} onEdit={onEdit} />
-        <TaskColumn title="TOMORROW"  date={tmDate} tasks={tmTasks} onToggle={onToggleComplete} onDelete={onDelete} onEdit={onEdit} />
+        <TaskColumn
+          title="YESTERDAY"
+          date={yDate}
+          tasks={yTasks}
+          onToggle={onToggleComplete}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+        <TaskColumn
+          title="TODAY"
+          date={tDate}
+          tasks={tTasks}
+          onToggle={onToggleComplete}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+        <TaskColumn
+          title="TOMORROW"
+          date={tmDate}
+          tasks={tmTasks}
+          onToggle={onToggleComplete}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
       </div>
     );
   }
- 
+
   return (
     <div ref={wrapRef} className="relative">
       <div className="flex items-center justify-between mb-2">
         <button
-          onClick={() => setSlide(s => Math.max(0, s - 1))}
+          onClick={() => setSlide((s) => Math.max(0, s - 1))}
           disabled={slide === 0}
-          className={`border-2 rounded px-3 py-1 ${slide > 0 ? "hover:bg-[#2F4858] hover:text-white" : "opacity-40 cursor-not-allowed"}`}
+          className={`border-2 rounded px-3 py-1 ${
+            slide > 0 ? "hover:bg-[#2F4858] hover:text-white" : "opacity-40 cursor-not-allowed"
+          }`}
         >
           ◀
         </button>
         <div className="text-lg font-jua">{slides[slide].title}</div>
         <button
-          onClick={() => setSlide(s => Math.min(2, s + 1))}
+          onClick={() => setSlide((s) => Math.min(2, s + 1))}
           disabled={slide === 2}
-          className={`border-2 rounded px-3 py-1 ${slide < 2 ? "hover:bg-[#2F4858] hover:text-white" : "opacity-40 cursor-not-allowed"}`}
+          className={`border-2 rounded px-3 py-1 ${
+            slide < 2 ? "hover:bg-[#2F4858] hover:text-white" : "opacity-40 cursor-not-allowed"
+          }`}
         >
           ▶
         </button>
       </div>
 
-      <div className="overflow-hidden  rounded-xl">
+      <div className="overflow-hidden rounded-xl">
         <div
           className="flex transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${slide * 100}%)` }}
@@ -91,15 +129,18 @@ function DayColumnsResponsive({ yTasks, tTasks, tmTasks, onToggleComplete, onDel
 // Main Dashboard page layout
 export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDelete, onEdit }) {
   const today = startOfDay(new Date());
-  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
-  const tomorrow  = new Date(today);  tomorrow.setDate(today.getDate() + 1);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
 
-  // Datastructures to hold the current tasks
   const yTasks = [];
   const tTasks = [];
   const tmTasks = [];
   const past = [];
   const future = [];
+
+  const { current, best } = deriveStreakStats(tasks);
 
   for (const t of tasks) {
     const due = t.dueDate ? new Date(t.dueDate) : null;
@@ -122,13 +163,25 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
   const yDate = fmt(yesterday);
   const tDate = fmt(today);
   const tmDate = fmt(tomorrow);
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(t => t.status === "completed").length;
+  const pendingTasks = totalTasks - completedTasks;
+  const completionRate = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const overdueTasks = tasks.filter(t =>
+    t.status !== "completed" &&
+    t.dueDate &&
+    new Date(t.dueDate) < today
+  ).length;
 
   return (
     <div className="flex flex-col gap-6 px-6 py-4 h-full">
       {/* Top section */}
       <div className="flex-0">
         <div className="flex justify-between items-center font-jua text-[#2F4858]">
-          <div><p className="text-[50px]">WELCOME DUCKLING!</p></div>
+          <div>
+            <p className="text-[50px]">WELCOME DUCKLING!</p>
+          </div>
           <button
             className="border-4 border-[#2F4858] rounded-lg px-4 py-1 text-[24px]"
             onClick={() => setModalOpen(true)}
@@ -139,9 +192,9 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
       </div>
 
       {/* Main content */}
-      <div className="flex-1 min-h-0 overflow-y-auto mb-20">
+      <div className="flex-1 min-h-0 pb-24">
         <div className="flex gap-6 font-jua text-[#2F4858]">
-          <div className="w-[70%] min-w-0">
+          <div className="w-[73%] min-w-0">
             <DayColumnsResponsive
               yTasks={yTasks}
               tTasks={tTasks}
@@ -155,35 +208,109 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
             />
           </div>
 
-          <div className="w-[5%]" />
+          <div className="w-[2%]" />
 
-          <div className="w-[25%] flex flex-col gap-4">
-            <div className="border-4 border-[#2F4858] rounded-xl p-4">
-              <h2 className="text-[30px] mb-2">Statistics</h2>
-              <p className="text-[18px]">Tasks completed: {tasks.filter(t => t.status === 'completed').length}</p>
-              <p className="text-[18px]">Streak: 10 days</p>
-              <p className="text-[18px]">Productivity level: 🦆</p>
+          {/* Statistics card */}
+              <div className="w-[25%] flex flex-col gap-4">
+              <div className="border-4 border-[#2F4858] rounded-2xl p-4 bg-gradient-to-br from-[#FFF9E6] via-[#FAFAF0] to-[#F3F7FB] shadow-sm flex flex-col gap-4">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-[26px] leading-tight">Statistics</h2>
+                    <p className="text-xs uppercase tracking-widest opacity-60">
+                      getting it duck duck done
+                    </p>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-[#2F4858] flex items-center justify-center text-xl text-white">
+                    📊
+                  </div>
+                </div>
+
+                {/* Completion rate big number */}
+                <div>
+                  <p className="text-xs uppercase tracking-widest opacity-60 mb-1">
+                    completion rate
+                  </p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-semibold">{completionRate}%</span>
+                    <span className="text-xs opacity-70 mb-1">
+                      {completedTasks} of {totalTasks || 0} tasks
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-2 w-full h-3 rounded-full bg-[#2F4858]/10 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[#2F4858] transition-all"
+                      style={{ width: `${completionRate}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Streak & productivity Indicators */}
+                <div className="grid grid-cols-2 gap-3 mt-1">
+                  <div className="rounded-xl border border-[#2F4858]/30 bg-white/80 px-3 py-2 flex flex-col gap-1">
+                    <span className="text-xs uppercase tracking-widest opacity-60">
+                      current streak
+                    </span>
+                    <span className="text-2xl leading-none">
+                      {current}
+                      <span className="text-xs ml-1">days</span>
+                    </span>
+                    <span className="text-[10px] opacity-70">
+                      best: {best} day{best === 1 ? "" : "s"}
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-[#2F4858]/30 bg-white/80 px-3 py-2 flex flex-col gap-1">
+                    <span className="text-xs uppercase tracking-widest opacity-60">
+                      duck energy
+                    </span>
+                    <span className="text-2xl leading-none">
+                      {completionRate >= 80 ? "🔥" : completionRate >= 40 ? "😌" : "😖"}
+                    </span>
+                    <span className="text-[10px] opacity-70">
+                      {completionRate >= 80
+                        ? "ducktastic!"
+                        : completionRate >= 40
+                        ? "solid paddling"
+                        : "oh duck"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom row: overdue & pending */}
+                <div className="mt-1 rounded-xl border border-[#2F4858]/20 bg-white/70 px-3 py-2 flex items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-xs uppercase tracking-widest opacity-60">
+                      overdue
+                    </span>
+                    <span className="text-lg">
+                      {overdueTasks}
+                      <span className="text-xs ml-1 opacity-70">tasks</span>
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs uppercase tracking-widest opacity-60">
+                      still to do
+                    </span>
+                    <span className="text-lg">
+                      {pendingTasks}
+                      <span className="text-xs ml-1 opacity-70">open</span>
+                    </span>
+                  </div>
+                </div>
+
+              </div>
             </div>
-          </div>
         </div>
+
 
         {/* Weekly streak */}
-        <div className="relative w-full font-jua mt-6">
-          <p className="text-3xl">WEEKLY STREAK:</p>
-          <div className="border-4 border-[#2F4858] rounded-full w-full absolute top-[65%] z-0"></div>
-          <div className="flex justify-between gap-4">
-            <StreakDay day="Sunday" wasActive={true} />
-            <StreakDay day="Monday" wasActive={true} />
-            <StreakDay day="Tuesday" wasActive={true} />
-            <StreakDay day="Wednesday" wasActive={false} />
-            <StreakDay day="Thursday" wasActive={false} />
-            <StreakDay day="Friday" wasActive={false} />
-            <StreakDay day="Saturday" wasActive={false} />
-          </div>
-        </div>
+        <WeeklyStreak tasks={tasks} />
 
         {/* Past & Future */}
-        <div className="grid grid-cols-2 gap-6 font-jua text-[#2F4858] mt-6">
+        <div className="grid grid-cols-2 gap-6 font-jua text-[#2F4858] mt-10">
           <PaginatedTaskBox
             title="PAST"
             tasks={past}
@@ -199,6 +326,7 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
             onEdit={onEdit}
           />
         </div>
+        <div className="pb-14"> </div>
       </div>
     </div>
   );
