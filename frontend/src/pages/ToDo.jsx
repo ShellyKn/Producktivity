@@ -78,7 +78,7 @@ function ToDo() {
         left_side={<Logo />}
         right_side={
           <Nav
-            pages={["PROFILE", "DASHBOARD", "CALENDAR"]}  
+            pages={["HOME", "DASHBOARD", "CALENDAR"]}  
             setIndex={setPageIndex}
             index={pageIndex}
           />
