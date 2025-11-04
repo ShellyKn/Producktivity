@@ -84,14 +84,18 @@ export const getUserProfile = async (req, res) => {
 };
 
 export const updateUserStreak = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { count } = req.body;
+  try {
+    const { userId } = req.params;
+    const { current, best } = req.body;
 
-        const result = await userModel.updateStreak(userId, count);
-        res.json({ message: "Streak updated successfully: ", count });
+    if (typeof current !== "number" || typeof best !== "number") {
+      return res.status(400).json({ error: "Current and best must be numbers" });
     }
-    catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+
+    await userModel.updateStreak(userId, { current, best });
+    res.json({ message: "Streak updated successfully", streak: { current, best } });
+  }
+  catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

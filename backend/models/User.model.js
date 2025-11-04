@@ -24,7 +24,7 @@ export class UserModel {
             userName: userData.userName,
             name: userData.name,
             passwordHash: passwordHash,
-            streak: { count: 0 },
+            streak: { current: 0, best: 0 },
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -97,7 +97,7 @@ export class UserModel {
         return result;
     }
 
-    async updateStreak(userId, count) {
+    async updateStreak(userId, streak) {
         const collection = await this.getCollection();
         const objectId = toObjectId(userId);
 
@@ -109,7 +109,8 @@ export class UserModel {
             { _id: objectId },
             { 
                 $set: { 
-                    'streak.count': count,
+                    'streak.current': streak.current,
+                    'streak.best' : streak.best,
                     updatedAt: new Date() 
                 } 
             }

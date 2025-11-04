@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import TaskColumn from "../components/TaskColumn";
 import StreakDay from "../components/StreakDay";
 import PaginatedTaskBox from "../components/PaginatedTaskBox";
-
+import WeeklyStreak from "../components/WeeklyStreak";
+import { deriveStreakStats } from "../lib/streakUtils";
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
 function isSameDay(a, b) { return startOfDay(a).getTime() === startOfDay(b).getTime(); }
 const fmt = (d) => {
@@ -17,6 +18,7 @@ function DayColumnsResponsive({ yTasks, tTasks, tmTasks, onToggleComplete, onDel
   const wrapRef = useRef(null);
   const [narrow, setNarrow] = useState(false);
   const [slide, setSlide] = useState(1); // For the carousel
+ 
 
   useEffect(() => {
     if (!wrapRef.current) return;
@@ -100,7 +102,7 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
   const tmTasks = [];
   const past = [];
   const future = [];
-
+  const { current, best } = deriveStreakStats(tasks);
   for (const t of tasks) {
     const due = t.dueDate ? new Date(t.dueDate) : null;
     if (!due || isSameDay(due, today)) {
@@ -157,18 +159,20 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
 
           <div className="w-[5%]" />
 
+          {/* Statistics card */}
           <div className="w-[25%] flex flex-col gap-4">
             <div className="border-4 border-[#2F4858] rounded-xl p-4">
               <h2 className="text-[30px] mb-2">Statistics</h2>
               <p className="text-[18px]">Tasks completed: {tasks.filter(t => t.status === 'completed').length}</p>
-              <p className="text-[18px]">Streak: 10 days</p>
+              <p className="text-[18px]">Streak (current): {current} days</p>
+              <p className="text-[18px]">Best streak: {best} days</p>
               <p className="text-[18px]">Productivity level: 🦆</p>
             </div>
           </div>
         </div>
 
         {/* Weekly streak */}
-        <div className="relative w-full font-jua mt-6">
+        {/* <div className="relative w-full font-jua mt-6">
           <p className="text-3xl">WEEKLY STREAK:</p>
           <div className="border-4 border-[#2F4858] rounded-full w-full absolute top-[65%] z-0"></div>
           <div className="flex justify-between gap-4">
@@ -180,8 +184,9 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
             <StreakDay day="Friday" wasActive={false} />
             <StreakDay day="Saturday" wasActive={false} />
           </div>
-        </div>
-
+        </div> */}
+         <WeeklyStreak tasks={tasks} />
+         
         {/* Past & Future */}
         <div className="grid grid-cols-2 gap-6 font-jua text-[#2F4858] mt-6">
           <PaginatedTaskBox
