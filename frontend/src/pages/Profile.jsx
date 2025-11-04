@@ -41,7 +41,7 @@ export default function Profile({
       setTodaysTasks(tasks.toSorted(function(taskA, taskB){return new Date(taskA.dueDate) - new Date(taskB.dueDate)}))
     } else {
       setFilter(filters.PRIORITY)
-      setTodaysTasks(tasks.toSorted(function(taskA, taskB){return taskA.priority - taskB.priority}))
+      setTodaysTasks(tasks.toSorted(function(taskA, taskB){return taskB.priority - taskA.priority}))
     }
   }
 
