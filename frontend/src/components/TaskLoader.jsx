@@ -1,17 +1,20 @@
 import Task from "./Task";
+import TaskRow from "./TaskRow";
 
 function TaskLoader({ tasks, onToggle, onEdit, onDelete }) {
   return (
     <>
-      {tasks && tasks.map(task => (
-        <Task
-          key={task._id}
-          task={task}
-          onToggle={() => onToggle(task)}
-          onEdit={(partial) => onEdit(task._id, partial)}
-          onDelete={() => onDelete(task._id)}
-        />
-      ))}
+      {tasks &&
+        tasks.map((task) => (
+          <TaskRow
+            key={task._id}
+            task={task}
+            onToggle={onToggle}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            stackAt={600}
+          />
+        ))}
     </>
   );
 }
