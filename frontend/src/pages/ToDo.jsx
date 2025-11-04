@@ -90,7 +90,7 @@ function ToDo() {
   }
 
   return (
-    <div className="bg-[#FAFAF0] h-screen flex flex-col overflow-hidden">
+    <div className="bg-[#FAFAF0] h-screen flex flex-col overflow-y-auto">
       <Header
         left_side={<Logo />}
         right_side={
