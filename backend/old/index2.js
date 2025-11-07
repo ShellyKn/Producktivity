@@ -5,6 +5,7 @@ import { connectToDatabase, closeDatabase } from "../config/database.js";
 import { userModel } from "../models/User.model.js";
 import { taskModel } from "../models/Task.model.js";
 import { followModel } from "../models/Follow.model.js";
+import quotesRoute from "../routes/Quotes.routes.js"
 
 dotenv.config();
 const app = express();
