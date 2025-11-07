@@ -7,6 +7,7 @@ import { connectToDatabase, closeDatabase } from './config/database.js';
 import userRoutes from './routes/User.routes.js';
 import taskRoutes from './routes/Task.routes.js';
 import followRoutes from './routes/Follow.routes.js';
+import quoteRoutes from './routes/Quotes.routes.js'
 
 dotenv.config();
 const app = express();
@@ -48,6 +49,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api", followRoutes); //! follow routes SHOULD alr include their own paths
+app.use("/api", quoteRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

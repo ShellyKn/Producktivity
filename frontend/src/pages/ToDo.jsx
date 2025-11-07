@@ -31,6 +31,16 @@ function ToDo() {
       } catch (e) {
         console.error(e);
       }
+
+      try {
+        const res = await fetch("http://localhost:4000/api/quote");
+        const data = await res.json();
+        if (data.quote && data.author) {
+          setQuote(`${data.quote} — ${data.author}`);
+        }
+      } catch (e) {
+        console.error("Failed to fetch quote", e);
+      }
     })();
   }, []);
 
@@ -119,6 +129,7 @@ function ToDo() {
           tasks={tasks}
           quote={quote}
           setModalOpen={setModalOpen}
+          setPageIndex={setPageIndex}
           onToggle={handleToggleComplete}
           onEdit={handleUpdate}
           onDelete={handleDelete}

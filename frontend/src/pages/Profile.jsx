@@ -23,6 +23,7 @@ export default function Profile({
   quote,
   streakDays = 10,
   setModalOpen,
+  setPageIndex,
   onToggle,
   onEdit,
   onDelete,
@@ -123,7 +124,7 @@ export default function Profile({
 
             <button
               className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#2F4858] px-4 py-2 text-lg bg-white/80 hover:bg-[#2F4858] hover:text-white transition-colors"
-              onClick={() => setModalOpen(true)}
+              onClick={() => setPageIndex(1)}
             >
               See more stats
               <span className="inline-block">↗</span>
