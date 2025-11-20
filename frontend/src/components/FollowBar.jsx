@@ -1,6 +1,8 @@
-
+import { useEffect, useState } from "react";
 
 export default function FollowBar() {
+  const [user, setUser] = useState("");
+  
   return (
     // Main border 
     <div
@@ -11,8 +13,8 @@ export default function FollowBar() {
         <div className="flex items-center justify-between gap-2">
           <input 
             className="w-full bg-[#FAFAF0] p-2"
-            // value={name} 
-            // onChange={(e)=>setName(e.target.value)} 
+            value={user} 
+            onChange={(e)=>setUser(e.target.value)} 
             placeholder="Enter user name..." 
           />
 
