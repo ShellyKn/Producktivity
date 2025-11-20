@@ -143,6 +143,11 @@ export default function Profile({
           </p>
           <p className="text-xl leading-snug">{quote}</p>
         </div>
+
+        {/* Ducky image */}
+        <div className="flex justify-center">
+          <img src="art/duck.png" className="w-1/2 max-w-[140px]" alt="A cute blue duck head"/>
+        </div>
       </div>
 
       {/* MIDDLE PANEL */}
@@ -217,9 +222,7 @@ export default function Profile({
           </p>
         </div>
 
-        <div className="flex justify-center">
-          <img src="art/duck.png" className="w-1/2 max-w-[140px]" />
-        </div>
+        <FollowBar />
       </div>
     </div>
   );
