@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import TaskLoader from "../components/TaskLoader.jsx";
+import FollowBar from "../components/FollowBar.jsx";
 
 function startOfDay(d) {
   const x = new Date(d);

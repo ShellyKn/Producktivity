@@ -8,6 +8,7 @@ function toInputDate(d) {
   const dd = String(x.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }
+
 function fromInputLocalNoon(yyyymmdd) {
   if (!yyyymmdd) return null;
   const [y, m, d] = yyyymmdd.split("-").map(Number);

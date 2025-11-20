@@ -86,7 +86,6 @@ function ToDo() {
     );
   }
 
-
   // Updates task
   async function handleUpdate(taskId, partial) {
     await apiUpdateTask(taskId, partial);
