@@ -1,16 +1,65 @@
-# React + Vite
+# Producktivity — Frontend
+React + Vite + Tailwind CSS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Tech Stack
+- React (Vite)
+- Tailwind CSS
+- Responsive UI with a calendar, dashboard, and weekly streaks
+- Reusable components and small utilities in `src/lib`
 
-Currently, two official plugins are available:
+## Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Important aspects and structures of the frontend. Not all are included.
+```
+frontend/
+|-- index.html
+|-- tailwind.config.*
+|-- postcss.config.*
+|--src/
+   |-- main.jsx              # App entry + route definitions
+   |-- App.jsx               # Landing/unauthenticated page
+   |-- pages/                # Feature pages
+   |  |-- Calendar.jsx
+   |  |-- Dashboard.jsx
+   |  |-- Login.jsx
+   |  |-- Profile.jsx
+   |  |-- ToDo.jsx
+   |-- components/           # Reusable UI components
+   |  |-- Header.jsx
+   |  |-- Nav.jsx
+   |  |-- TaskModal.jsx
+   |  |-- TaskColumn.jsx
+   |  |-- TaskRow.jsx
+   |  |-- PaginatedTaskBox.jsx
+   |  |-- WeeklyStreak.jsx
+   |-- lib/                  # Client helpers & utilities
+      |-- api.js             # REST calls (uses VITE_API_URL)
+      |-- streakUtils.js     # Streak calculation helpers
+      |-- utils.js           # Date & UI helpers
+```
 
-## Expanding the ESLint configuration
+## Routing & Auth Flow
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/main.jsx` defines routes for the app.
+- `src/App.jsx` acts as the landing page for users who are not logged in.
+- When the user clicks **Login** / **Sign up**, the app routes to the `Login` page.
+- After login, the main authenticated paths are **Dashboard**, **Calendar**, **Profile**, and **ToDo**.
+
+
+## Available Scripts
+
+- `npm run dev` — start the Vite dev server
+- `npm run build` — production build to `dist/`
+
+## Styling
+
+- Tailwind is already configured. Use utility classes in JSX.
+- Prefer responsive classes (e.g., `sm:`, `md:`, `lg:`) for layouts like the Dashboard columns and Calendar.
