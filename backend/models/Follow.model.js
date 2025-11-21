@@ -81,6 +81,63 @@ export class FollowModel {
         return await collection.find({ followerId: userObjectId }).toArray();
     }
 
+    // Following IDs for a user
+    async getFollowingIds(userId) {
+        const docs = await this.getFollowing(userId);
+        return docs.map(d => d.followeeId);
+    }
+
+    // Following user documents
+    async getFollowingUsers(userId) {
+        const db = await getDatabase();
+        const ids = await this.getFollowingIds(userId);
+        if (!ids.length) return [];
+        return await db.collection('users')
+        .find({ _id: { $in: ids } })
+        .project({ _id: 1, email: 1, name: 1, userName: 1 })
+        .toArray();
+    }
+
+    // Friends leaderboard (points = completed tasks in last 7 days)
+    async getFriendsLeaderboard(userId, days = 7) {
+        const db = await getDatabase();
+        const ids = await this.getFollowingIds(userId);
+        if (!ids.length) return [];
+
+        const since = new Date();
+        since.setDate(since.getDate() - days);
+
+        const agg = await db.collection('tasks').aggregate([
+        { $match: {
+            ownerId: { $in: ids },
+            status: 'completed',
+            completedAt: { $gte: since }
+        }},
+        { $group: { _id: '$ownerId', points: { $sum: 1 } } },
+        { $sort: { points: -1 } },
+        { $limit: 10 }
+        ]).toArray();
+
+        if (!agg.length) return [];
+
+        const byId = new Map(agg.map(a => [String(a._id), a.points]));
+        const users = await db.collection('users')
+        .find({ _id: { $in: agg.map(a => a._id) } })
+        .project({ _id: 1, userName: 1, name: 1, email: 1 })
+        .toArray();
+
+        const enriched = users
+        .map(u => ({
+            userId: String(u._id),
+            username: u.userName || u.name || u.email,
+            points: byId.get(String(u._id)) || 0
+        }))
+        .sort((a, b) => b.points - a.points)
+        .map((u, i) => ({ ...u, rank: i + 1 }));
+
+        return enriched;
+    }
+
     // Check if user A follows user B
     async isFollowing(followerId, followeeId) {
         const collection = await this.getCollection();

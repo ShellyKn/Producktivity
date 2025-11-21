@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, getUserProfile, updateUserStreak } from '../controllers/User.controller.js';
+import { registerUser, loginUser, getUserProfile, updateUserStreak, searchUsers } from '../controllers/User.controller.js';
 
 const router = express.Router();
 
@@ -8,6 +8,9 @@ router.post('/register', registerUser);
 
 // POST - /api/users/login
 router.post('/login', loginUser);
+
+// GET - /api/users/search
+router.get('/search', searchUsers);
 
 // GET - /api/users/:userId
 router.get('/:userId', getUserProfile);

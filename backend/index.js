@@ -48,7 +48,7 @@ app.get("/api/health", async (req, res) => {
 // Mount routes
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
-app.use("/api", followRoutes); //! follow routes SHOULD alr include their own paths
+app.use("/api/follow", followRoutes); //! follow routes SHOULD alr include their own paths
 app.use("/api", quoteRoutes);
 
 const server = app.listen(PORT, () => {

@@ -53,3 +53,14 @@ export const getFollowing = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Friends leaderboard 
+export const friendsLeaderboard = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const leaders = await followModel.getFriendsLeaderboard(userId, 7);
+    res.json({ leaders });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
