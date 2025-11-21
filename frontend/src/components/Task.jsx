@@ -1,19 +1,5 @@
 import { useEffect, useState } from "react";
-
-function toInputDate(d) {
-  if (!d) return "";
-  const x = new Date(d);
-  const yyyy = x.getFullYear();
-  const mm = String(x.getMonth() + 1).padStart(2, "0");
-  const dd = String(x.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function fromInputLocalNoon(yyyymmdd) {
-  if (!yyyymmdd) return null;
-  const [y, m, d] = yyyymmdd.split("-").map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0, 0); // avoid tz drift
-}
+import { toInputDateString as toInputDate, fromInputDateLocal as fromInputLocalNoon } from "../lib/utils";
 
 function Task({ task, onToggle, onEdit, onDelete }) {
   const [title, setTitle] = useState(task.title || "");

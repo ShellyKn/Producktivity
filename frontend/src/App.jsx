@@ -6,23 +6,11 @@ import {
   Link
 } from "react-router-dom";
 
-// basic test function 
 function App() {
-  const [message, setMessage] = useState("Loading...")
-
-  // Example of connecting with the backend
-  useEffect(() => {
-    fetch("/api/hello") 
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => setMessage("Error: " + err.message))
-  }, [])
-
   return (
     <div className="bg-[#FAFAF0] **overflow-hidden**">
 
       <Header left_side={<Logo></Logo>} right_side={<Link to="/login"><button className="h-[40px] font-josefin text-[18px] rounded-full bg-[#EDEEDE] text-[#5A311F] px-4 py-1.5">Sign Up / Log In</button></Link>}></Header>
-      {/* <h1 className="text-3xl font-bold text-black font-inria-sans">{message}</h1> */}
       <div className="flex items-center justify-center h-screen">
         <div className="w-3/4 items-center relative">
           <img className="absolute top-[25%] right-[10%]" src="art/quak.png" style={{ height: '200px', width: '200px' }}></img>

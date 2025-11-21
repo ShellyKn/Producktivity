@@ -1,3 +1,11 @@
+// Profile.jsx
+// Renders the Profile page: left (stats), middle (tasks), right (friends leaderboard + follow bar).
+// Integrates with the follow system and friends leaderboard via API helper functions.
+// Notes:
+// - Keeps local state for sorting tasks, current following list, and leaders.
+// - Uses optimistic updates for follow/unfollow and then re-syncs from the backend.
+// - Hydrates following entries if the backend returns only IDs (fetches full user profiles).
+
 import { useMemo, useState, useEffect, useCallback } from "react";
 import TaskLoader from "../components/TaskLoader.jsx";
 import FollowBar from "../components/FollowBar.jsx";
@@ -9,35 +17,39 @@ import {
   getUserProfile,
 } from "../lib/api.js";
 
+// --- date utilities used for "tasks done today" ---
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
 function isSameDay(a,b){ return startOfDay(a).getTime()===startOfDay(b).getTime(); }
 const today = startOfDay(new Date());
+
+// --- supported task sort filters ---
 const filters = Object.freeze({ PRIORITY:"Priority", DATE:"Date" });
 
 export default function Profile({
-  tasks,
-  quote,
-  streakDays = 10,
-  setModalOpen,
-  setPageIndex,
-  onToggle,
-  onEdit,
-  onDelete,
+  tasks,            // all tasks for the current user
+  quote,            // daily quote string
+  streakDays = 10,  // current streak (visual only here)
+  setModalOpen,     // open "add task" modal
+  setPageIndex,     // navigate to dashboard for more stats
+  onToggle,         // toggle task completion
+  onEdit,           // update a task
+  onDelete,         // delete a task
 }) {
-  // Get the current user
+  // Get the current user from localStorage (saved at login/signup).
+  // If parsing fails, fall back to empty object.
   const currentUser = useMemo(() => {
     try { return JSON.parse(localStorage.getItem("user") || "{}"); }
     catch { return {}; }
   }, []);
-  const myId = currentUser?._id;
+  const myId = currentUser?._id; // current user's ID for follow/leaderboard calls
 
-  // Local UI state
-  const [filter, setFilter] = useState(filters.PRIORITY);
-  const [leaders, setLeaders] = useState([]);            // leaderboard rows
-  const [following, setFollowing] = useState([]);        // [{_id,email,name,userName}]
-  const [loadingFollowing, setLoadingFollowing] = useState(false);
+  // --- local UI state ---
+  const [filter, setFilter] = useState(filters.PRIORITY); // task sorting state
+  const [leaders, setLeaders] = useState([]);            // leaderboard rows [{rank,userId,username,points}]
+  const [following, setFollowing] = useState([]);        // users I follow [{_id,email,name,userName}]
+  const [loadingFollowing, setLoadingFollowing] = useState(false); // spinner flag for follow list
 
-  // Derived: tasks done today
+  // Compute number of tasks completed "today" (used in the left stats card).
   const numTasks = tasks.filter((t) => {
     if (t.status !== "completed") return false;
     if (!t.completedAt)
@@ -45,7 +57,8 @@ export default function Profile({
     return isSameDay(new Date(t.completedAt), today);
   }).length;
 
-  // --- Data loaders (stable via useCallback) ---
+  // --- Data loader: fetches my "following" list (stable via useCallback) ---
+  // If backend returns only IDs (e.g., {followeeId}), hydrate each user via getUserProfile.
   const loadFollowing = useCallback(async () => {
     if (!myId) return;
     setLoadingFollowing(true);
@@ -53,7 +66,7 @@ export default function Profile({
       const raw = await getFollowing(myId);
       let list = raw || [];
 
-      // If API returns only IDs, hydrate to { _id, email, name, userName }
+      // Hydration path: when server returns IDs only, fetch full profiles to show names/emails.
       if (list.length && !("email" in list[0]) && !("name" in list[0]) && !("userName" in list[0])) {
         const ids = list
           .map(r => r.followeeId || r._id || r.userId)
@@ -63,7 +76,7 @@ export default function Profile({
         const hydrated = await Promise.all(
           uniq.map(async (id) => {
             try { return await getUserProfile(id); }
-            catch { return { _id: id }; }
+            catch { return { _id: id }; } // fallback: still render something (avoids blanks)
           })
         );
         list = hydrated;
@@ -78,6 +91,7 @@ export default function Profile({
     }
   }, [myId]);
 
+  // --- Data loader: fetches the top-10 friends leaderboard (stable via useCallback) ---
   const refreshLeaders = useCallback(async () => {
     if (!myId) return;
     try {
@@ -89,7 +103,8 @@ export default function Profile({
     }
   }, [myId]);
 
-  // Load following + leaderboard on mount / when myId changes
+  // On mount (and when myId changes): load following first, then leaderboard.
+  // The "cancelled" guard prevents setting state after unmount.
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -101,10 +116,11 @@ export default function Profile({
     return () => { cancelled = true; };
   }, [myId, loadFollowing, refreshLeaders]);
 
-  // Follow / unfollow actions
+  // --- follow / unfollow handlers with optimistic UI updates ---
+  // handleFollow: show immediately in list, call API, then re-sync and refresh leaders.
   async function handleFollow(user) {
     if (!myId || !user?._id) return;
-    // optimistic add
+    // optimistic add (avoid duplicates)
     setFollowing(prev => {
       const exists = prev.some(u => String(u._id) === String(user._id));
       return exists ? prev : [{ ...user }, ...prev];
@@ -112,14 +128,16 @@ export default function Profile({
     try {
       await followUser(myId, user._id);
     } catch (e) {
-      // revert on error
+      // on error, revert optimistic change
       setFollowing(prev => prev.filter(u => String(u._id) !== String(user._id)));
     } finally {
+      // ensure UI is consistent with server
       await loadFollowing();
       await refreshLeaders();
     }
   }
 
+  // handleUnfollow: remove immediately, call API, then re-sync and refresh leaders.
   async function handleUnfollow(user) {
     if (!myId || !user?._id) return;
     // optimistic remove
@@ -127,7 +145,7 @@ export default function Profile({
     try {
       await unfollowUser(myId, user._id);
     } catch (e) {
-      // revert on error
+      // on error, revert optimistic removal
       setFollowing(prev => [{ ...user }, ...prev]);
     } finally {
       await loadFollowing();
@@ -135,10 +153,13 @@ export default function Profile({
     }
   }
 
-  // ------- tasks sorting -------
+  // --- tasks sorting ---
+  // toggleFilter: flips between sorting by priority and date.
   function toggleFilter() {
     setFilter((p) => (p === filters.PRIORITY ? filters.DATE : filters.PRIORITY));
   }
+
+  // sortedTasks: memoized, sorts by chosen filter without mutating original tasks.
   const sortedTasks = useMemo(() => {
     const arr = [...tasks];
     if (filter === filters.DATE) {
@@ -151,8 +172,9 @@ export default function Profile({
 
   return (
     <div className="font-jua w-full flex-1 flex text-[#2F4858] bg-[#FAFAF0] px-8 py-6 gap-8">
-      {/* LEFT PANEL */}
+      {/* LEFT PANEL: profile summary + daily quote */}
       <div className="w-[28%] flex flex-col gap-6">
+        {/* Profile card */}
         <div className="relative border-4 border-[#2F4858] rounded-2xl p-5 bg-gradient-to-br from-[#FFF9E6] via-[#FAFAF0] to-[#F3F7FB] overflow-hidden">
           <div className="relative flex flex-col gap-5">
             <div className="flex items-center gap-4">
@@ -165,6 +187,7 @@ export default function Profile({
               </div>
             </div>
 
+            {/* small stat chips */}
             <div className="grid grid-cols-2 gap-3 mt-1">
               <div className="rounded-xl border-2 border-[#2F4858]/40 bg-white/70 px-3 py-2 flex flex-col items-center">
                 <span className="text-xs uppercase opacity-70">Tasks done</span>
@@ -180,6 +203,7 @@ export default function Profile({
               </div>
             </div>
 
+            {/* link to dashboard for deeper stats */}
             <button
               className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#2F4858] px-4 py-2 text-lg bg-white/80 hover:bg-[#2F4858] hover:text-white transition-colors"
               onClick={() => setPageIndex(1)}
@@ -189,18 +213,20 @@ export default function Profile({
           </div>
         </div>
 
+        {/* daily quote */}
         <div className="border-4 border-[#2F4858] rounded-2xl p-4 bg-white/80 relative overflow-hidden">
           <div className="absolute -top-3 -left-3 text-5xl opacity-10 select-none">“</div>
           <p className="text-sm uppercase tracking-widest opacity-70 mb-1">Daily quack</p>
           <p className="text-xl leading-snug">{quote}</p>
         </div>
 
+        {/* fun image */}
         <div className="flex justify-center">
           <img src="art/duck.png" className="w-1/2 max-w-[140px]" alt="A cute blue duck head"/>
         </div>
       </div>
 
-      {/* MIDDLE PANEL */}
+      {/* MIDDLE PANEL: task list (sorted by filter) */}
       <div className="w-[44%] flex flex-col gap-4 py-2">
         <div className="w-full flex justify-between items-center mb-1">
           <div>
@@ -208,12 +234,14 @@ export default function Profile({
             <p className="text-sm opacity-70 mt-1">Tackle your ducklist one task at a time.</p>
           </div>
           <div className="flex gap-2">
+            {/* toggle sort button */}
             <button
               className="border-4 border-[#2F4858] rounded-xl px-4 py-1.5 text-[20px] hover:bg-[#2F4858] hover:text-white transition-colors"
               onClick={toggleFilter}
             >
               Filtered by: {filter}
             </button>
+            {/* open add-task modal */}
             <button
               className="border-4 border-[#2F4858] rounded-xl px-4 py-1.5 text-[20px] hover:bg-[#2F4858] hover:text-white transition-colors"
               onClick={() => setModalOpen(true)}
@@ -223,13 +251,15 @@ export default function Profile({
           </div>
         </div>
 
+        {/* task list */}
         <div className="flex-1 gap-1 overflow-y-auto">
           <TaskLoader tasks={sortedTasks} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* RIGHT PANEL: friends leaderboard + follow bar */}
       <div className="w-[28%] flex flex-col gap-4 py-2">
+        {/* Friends leaderboard (top-10 among people you follow) */}
         <div className="border-4 border-[#2F4858] rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div>
@@ -258,7 +288,7 @@ export default function Profile({
           <p className="text-xs opacity-70 mt-2">Points = completed tasks in the last 7 days</p>
         </div>
 
-        {/* Follow bar to search for friends and display */}
+        {/* Follow bar: search users, follow/unfollow, and show the current following list */}
         <FollowBar
           currentUserId={myId}
           following={following}
@@ -266,6 +296,7 @@ export default function Profile({
           onFollow={handleFollow}
           onUnfollow={handleUnfollow}
           onRefresh={async () => {
+            // Ensure the follow list and leaderboard stay in sync when FollowBar changes something.
             await loadFollowing();
             await refreshLeaders();
           }}
@@ -275,6 +306,8 @@ export default function Profile({
   );
 }
 
+// Small presentational row for the leaderboard.
+// Shows rank, username, and a progress-like bar proportional to points (clamped to [10, 100]).
 function LeaderboardRow({ rank, name, points, accent }) {
   let badgeBg = "bg-[#2F4858]";
   if (accent === "gold") badgeBg = "bg-yellow-200";

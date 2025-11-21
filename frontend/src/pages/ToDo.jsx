@@ -7,14 +7,8 @@ import TaskModal from "../components/TaskModal.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
 import Profile from "../pages/Profile.jsx";
 import Calendar from "./Calendar.jsx";
-
+import { localDateFromPicker } from "../lib/utils.js";
 import { getTasks as apiGetTasks, createTask as apiCreateTask, updateTask as apiUpdateTask, deleteTask as apiDeleteTask } from "../lib/api.js";
-
-function localDateFromPicker(yyyymmdd) {
-  if (!yyyymmdd) return null;
-  const [y, m, d] = yyyymmdd.split('-').map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0, 0);
-}
 
 function ToDo() {
   const [pageIndex, setPageIndex] = useState(0); //used for switching pages
@@ -43,13 +37,6 @@ function ToDo() {
       }
     })();
   }, []);
-
-  // Potential stats that we can derrive from the backend later 
-  // const numTasks = 
-  //   () => tasks.filter(t => t.status === 'completed').length,
-  //   [tasks]
-  // 
-  // const streakDays = .....
 
   // Creates a task
   async function handleCreateTask({ name, due_date, notes, priority }) {

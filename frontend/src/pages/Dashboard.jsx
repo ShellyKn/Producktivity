@@ -3,16 +3,7 @@ import TaskColumn from "../components/TaskColumn";
 import PaginatedTaskBox from "../components/PaginatedTaskBox";
 import WeeklyStreak from "../components/WeeklyStreak";
 import { deriveStreakStats } from "../lib/streakUtils";
-
-function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
-function isSameDay(a, b) { return startOfDay(a).getTime() === startOfDay(b).getTime(); }
-
-const fmt = (d) => {
-  if (!d) return "—";
-  const dd = new Date(d);
-  if (isNaN(dd)) return "—";
-  return dd.toLocaleDateString(undefined, { month: "2-digit", day: "2-digit", year: "2-digit" });
-};
+import { startOfDay, isSameDay, fmtDateMDY } from "../lib/utils";
 
 // Responsive version of the Columns view
 function DayColumnsResponsive({
@@ -160,9 +151,9 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
   past.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
   future.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
-  const yDate = fmt(yesterday);
-  const tDate = fmt(today);
-  const tmDate = fmt(tomorrow);
+  const yDate = fmtDateMDY(yesterday);
+  const tDate = fmtDateMDY(today);
+  const tmDate = fmtDateMDY(tomorrow);
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === "completed").length;
   const pendingTasks = totalTasks - completedTasks;

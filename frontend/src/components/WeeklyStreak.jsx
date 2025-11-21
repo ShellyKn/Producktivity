@@ -1,39 +1,6 @@
 import { useMemo, useState } from "react";
 import StreakDay from "./StreakDay";
-
-function startOfDay(d) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function getWeekStart(baseDate, weekOffset = 0) {
-  const today = startOfDay(baseDate);
-  const dayIdx = today.getDay(); // 0 = Sunday
-  const sunday = new Date(today);
-  sunday.setDate(today.getDate() - dayIdx + weekOffset * 7);
-  return sunday;
-}
-
-function getWeekDays(weekOffset = 0) {
-  const start = getWeekStart(new Date(), weekOffset);
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    return d;
-  });
-}
-
-function buildCompletedDaySet(tasks) {
-  const set = new Set();
-  for (const t of tasks) {
-    if (t.status === "completed" && t.completedAt) {
-      const ts = startOfDay(new Date(t.completedAt)).getTime();
-      set.add(ts);
-    }
-  }
-  return set;
-}
+import { startOfDay, getWeekDays, buildCompletedDaySet } from "../lib/utils";
 
 export default function WeeklyStreak({ tasks }) {
   const [weekOffset, setWeekOffset] = useState(0); // 0 = this week, -1 = prev

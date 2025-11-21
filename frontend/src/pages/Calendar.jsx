@@ -1,62 +1,6 @@
 import { useMemo, useState } from "react";
 import TaskRow from "../components/TaskRow";
-
-// Takes in Date() object and creates a copy of it, strips it of the time to just get the day
-function startOfDay(d) { 
-    const x = new Date(d); 
-    x.setHours(0,0,0,0); 
-    return x; 
-}
-
-// Returns its two dates are the same regardless of the time
-function isSameDay(a, b) { 
-    return startOfDay(a).getTime() === startOfDay(b).getTime(); 
-}
-
-// Helper for formatting dates. Takes in d to make it a Date() object 
-function fmt(d) {
-  const x = new Date(d);
-  return x.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-}
-
-// Helper for formatting dates but for days
-function fmtDay(d) {
-  const x = new Date(d);
-  return x.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "2-digit" });
-}
-
-// Conversion helper
-function toInputDateString(d) {
-  const x = new Date(d);
-  const yyyy = x.getFullYear();
-  const mm = String(x.getMonth() + 1).padStart(2, "0");
-  const dd = String(x.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-// returns 42 day boxes (6 weeks) with {date, inMonth}
-function monthGrid(date) {
-  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  const startWeekday = (firstOfMonth.getDay() + 6) % 7;
-  const start = new Date(firstOfMonth);
-  start.setDate(firstOfMonth.getDate() - startWeekday);
-
-  const boxes = [];
-  for (let i = 0; i < 42; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    boxes.push({ date: d, inMonth: d.getMonth() === date.getMonth() });
-  }
-  return boxes;
-}
-
-// Design for the priority 
-function priorityDot(p) {
-  const n = Number(p) || 1;
-  if (n === 3) return "bg-red-500";
-  if (n === 2) return "bg-amber-500";
-  return "bg-emerald-500";
-}
+import { startOfDay, isSameDay, fmtMonthYear, fmtDayShort, toInputDateString, monthGrid, priorityDot } from "../lib/utils";
 
 
 export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }) {
@@ -132,7 +76,7 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
               ▶
             </button>
           </div>
-          <div className="text-2xl">{fmt(cursor)}</div>
+          <div className="text-2xl">{fmtMonthYear(cursor)}</div>
           <div />
         </div>
 
@@ -192,7 +136,7 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
       {/* RIGHT SIDE: Day panel */}
       <div className="w-[35%] min-w-[320px] border-4 border-[#2F4858] rounded-xl p-4 bg-[#FAFAF0] flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl">Tasks on {fmtDay(selected)}</h2>
+          <h2 className="text-2xl">Tasks on {fmtDayShort(selected)}</h2>
         </div>
 
         {/* Form: Add a task through the calendar */}
