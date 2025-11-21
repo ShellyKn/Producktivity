@@ -57,7 +57,7 @@ function DayColumnsResponsive({
   // Wide layout: render all three columns side-by-side.
   if (!narrow) {
     return (
-      <div ref={wrapRef} className="grid grid-cols-3 gap-6">
+      <div ref={wrapRef} className="w-full grid grid-cols-3 gap-6">
         <TaskColumn
           title="YESTERDAY"
           date={yDate}
@@ -200,7 +200,7 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
   ).length;
 
   return (
-    <div className="flex flex-col gap-6 px-6 py-4 h-full">
+    <div className="flex flex-col gap-6 px-4 md:px-6 py-4 h-full">
       {/* Top section: page title + quick add button */}
       <div className="flex-0">
         <div className="flex justify-between items-center font-jua text-[#2F4858]">
@@ -218,9 +218,9 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
 
       {/* Main content row: responsive columns + stats card */}
       <div className="flex-1 min-h-0 pb-24">
-        <div className="flex gap-6 font-jua text-[#2F4858]">
-          {/* Left: columns (yesterday/today/tomorrow) */}
-          <div className="w-[73%] min-w-0">
+        <div className="flex flex-col md:flex-row gap-6 font-jua text-[#2F4858]">
+          {/* Columns (Y / T / Tm) */}
+          <div className="w-full md:w-[73%] min-w-0 order-1">
             <DayColumnsResponsive
               yTasks={yTasks}
               tTasks={tTasks}
@@ -234,10 +234,10 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
             />
           </div>
 
-          <div className="w-[2%]" />
+          <div className="hidden md:block w-[2%]" />
 
           {/* Right: Statistics card */}
-          <div className="w-[25%] flex flex-col gap-4">
+          <div className="w-full md:w-[25%] min-w-0 flex flex-col gap-4 order-2">
             <div className="border-4 border-[#2F4858] rounded-2xl p-4 bg-gradient-to-br from-[#FFF9E6] via-[#FAFAF0] to-[#F3F7FB] shadow-sm flex flex-col gap-4">
               {/* Stats header */}
               <div className="flex items-center justify-between">
@@ -332,10 +332,12 @@ export default function Dashboard({ tasks, onToggleComplete, setModalOpen, onDel
         </div>
 
         {/* Weekly streak timeline (7-day view with nav between weeks) */}
-        <WeeklyStreak tasks={tasks} />
+        <div className="origin-top-left scale-[0.97] md:scale-100">
+          <WeeklyStreak tasks={tasks} />
+        </div>
 
         {/* Past & Future lists (paginated for long sets) */}
-        <div className="grid grid-cols-2 gap-6 font-jua text-[#2F4858] mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 font-jua text-[#2F4858] mt-8 md:mt-10">
           <PaginatedTaskBox
             title="PAST"
             tasks={past}

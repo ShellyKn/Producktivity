@@ -171,9 +171,10 @@ export default function Profile({
   }, [tasks, filter]);
 
   return (
-    <div className="font-jua w-full flex-1 flex text-[#2F4858] bg-[#FAFAF0] px-8 py-6 gap-8">
+
+    <div className="font-jua w-full flex-1 flex flex-col md:flex-row text-[#2F4858] bg-[#FAFAF0] px-4 md:px-8 py-6 gap-6 md:gap-8">
       {/* LEFT PANEL: profile summary + daily quote */}
-      <div className="w-[28%] flex flex-col gap-6">
+      <div className="w-full md:w-[28%] min-w-0 flex flex-col gap-6 order-1 md:order-1">
         {/* Profile card */}
         <div className="relative border-4 border-[#2F4858] rounded-2xl p-5 bg-gradient-to-br from-[#FFF9E6] via-[#FAFAF0] to-[#F3F7FB] overflow-hidden">
           <div className="relative flex flex-col gap-5">
@@ -227,7 +228,7 @@ export default function Profile({
       </div>
 
       {/* MIDDLE PANEL: task list (sorted by filter) */}
-      <div className="w-[44%] flex flex-col gap-4 py-2">
+      <div className="w-full md:w-[44%] min-w-0 flex flex-col gap-4 py-2 order-2 md:order-2">
         <div className="w-full flex justify-between items-center mb-1">
           <div>
             <h1 className="text-[38px] leading-none">To-do:</h1>
@@ -258,7 +259,7 @@ export default function Profile({
       </div>
 
       {/* RIGHT PANEL: friends leaderboard + follow bar */}
-      <div className="w-[28%] flex flex-col gap-4 py-2">
+      <div className="w-full md:w-[28%] min-w-0 flex flex-col gap-4 py-2 order-3">
         {/* Friends leaderboard (top-10 among people you follow) */}
         <div className="border-4 border-[#2F4858] rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
@@ -306,7 +307,7 @@ export default function Profile({
   );
 }
 
-// Small presentational row for the leaderboard.
+// Presentational row for the leaderboard.
 // Shows rank, username, and a progress-like bar proportional to points (clamped to [10, 100]).
 function LeaderboardRow({ rank, name, points, accent }) {
   let badgeBg = "bg-[#2F4858]";

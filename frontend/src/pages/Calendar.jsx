@@ -64,9 +64,9 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
   }
 
   return (
-    <div className="flex h-full gap-6 px-6 py-4 font-jua text-[#2F4858]">
+    <div className="flex flex-col md:flex-row h-full gap-4 md:gap-6 px-4 md:px-6 py-4 font-jua text-[#2F4858]">
       {/* LEFT SIDE: Month grid */}
-      <div className="w-[65%] min-w-[640px] flex flex-col gap-3">
+      <div className="w-full md:w-[65%] md:min-w-[640px] flex flex-col gap-2 md:gap-3">
         {/* Toolbar (month navigation + title) */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -91,21 +91,21 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
               ▶
             </button>
           </div>
-          <div className="text-2xl">{fmtMonthYear(cursor)}</div>
+          <div className="text-xl md:text-2xl">{fmtMonthYear(cursor)}</div>
           <div />
         </div>
 
         {/* Weekday header */}
-        <div className="grid grid-cols-7 text-xs uppercase tracking-wide opacity-70 text-[#5A311F]">
+        <div className="grid grid-cols-7 text-[10px] md:text-xs uppercase tracking-wide opacity-70 text-[#5A311F]">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-            <div key={d} className="px-2 py-1">
+            <div key={d} className="px-1.5 md:px-2 py-1">
               {d}
             </div>
           ))}
         </div>
 
         {/* Month grid */}
-        <div className="grid grid-cols-7 grid-rows-6 gap-2">
+        <div className="grid grid-cols-7 grid-rows-6 gap-1 md:gap-2">
           {grid.map(({ date, inMonth }) => {
             const isSelected = isSameDay(date, selected);
             const dateStr = date.getDate();
@@ -120,43 +120,45 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
                 key={date.toISOString()}
                 onClick={() => setSelected(startOfDay(date))}
                 className={[
-                  "relative rounded-lg border p-2 text-left transition-colors min-h-[90px] bg-[#FAFAF0]",
+                  "relative rounded-lg border p-1.5 md:p-2 text-left transition-colors min-h-[72px] md:min-h-[90px] bg-[#FAFAF0]",
                   inMonth ? "border-[#2F4858]/30" : "border-[#2F4858]/10 opacity-70",
                   isSelected ? "ring-2 ring-[#2F4858]" : "hover:border-[#2F4858]",
                 ].join(" ")}
               >
                 {/* Date header (plus 'today' chip) */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">{dateStr}</span>
+                  <span className="text-xs md:text-sm">{dateStr}</span>
                   {isSameDay(date, new Date()) && (
-                    <span className="text-[10px] px-1 rounded bg-blue-500 text-white">today</span>
+                    <span className="text-[9px] md:text-[10px] px-1 rounded bg-blue-500 text-white">today</span>
                   )}
                 </div>
 
                 {/* Task bullets */}
-                <div className="mt-1 space-y-1">
+                <div className="mt-1 space-y-0.5 md:space-y-1">
                   {dTasks.map((t) => (
-                    <div key={t._id} className="flex items-center gap-2 text-[11px] truncate">
+                    <div key={t._id} className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-[11px] truncate">
                       <span className={`inline-block w-2 h-2 rounded-full ${priorityDot(t.priority)}`} />
                       <span className="truncate">{t.title || "Untitled"}</span>
                     </div>
                   ))}
                   {dTasks.length === 0 && (
-                    <div className="text-[11px] opacity-50 italic">no tasks</div>
+                    <div className="text-[10px] md:text-[11px] opacity-50 italic">no tasks</div>
                   )}
                 </div>
               </button>
             );
           })}
         </div>
+
+        {/* Keep your weekly streak exactly as-is; layout stacks naturally on small */}
         <WeeklyStreak tasks={tasks} />
       </div>
 
-      {/* RIGHT SIDE: Day panel*/}
-      <div className="w-[35%] min-w-[320px] border-4 border-[#2F4858] rounded-xl p-4 bg-[#FAFAF0] flex flex-col gap-3">
+      {/* RIGHT SIDE: Day panel (stacks under calendar on small screens) */}
+      <div className="w-full md:w-[35%] md:min-w-[320px] border-4 border-[#2F4858] rounded-xl p-4 bg-[#FAFAF0] flex flex-col gap-3">
         {/* Day heading */}
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl">Tasks on {fmtDayShort(selected)}</h2>
+          <h2 className="text-xl md:text-2xl">Tasks on {fmtDayShort(selected)}</h2>
         </div>
 
         {/* Quick add form */}
@@ -201,7 +203,7 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
           <div className="text-sm italic opacity-60">No tasks for this day yet.</div>
         )}
         {dayTasks.map((task) => (
-          <div key={task._id} className="">
+          <div key={task._id}>
             <TaskRow
               task={task}
               onToggle={onToggle}
@@ -211,7 +213,6 @@ export default function Calendar({ tasks, onCreate, onEdit, onDelete, onToggle }
             />
           </div>
         ))}
-
       </div>
     </div>
   );
