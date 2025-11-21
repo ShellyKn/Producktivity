@@ -1,5 +1,6 @@
 import { userModel } from '../models/User.model.js'
-
+import { getDatabase } from '../config/database.js';
+import { toObjectId } from '../utils/objectId.js';
 export const registerUser = async (req, res) => {
     try {
         const { email, userName, name, password } = req.body;
@@ -97,5 +98,43 @@ export const updateUserStreak = async (req, res) => {
   }
   catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+// Searching users in the database
+export const searchUsers = async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    const excludeSelf = String(req.query.excludeSelf || '').trim();
+
+    if (!q) return res.json({ users: [] });
+
+    const db = await getDatabase();
+    const usersCol = db.collection('users');
+
+    const filter = {
+      $and: [
+        excludeSelf && toObjectId(excludeSelf)
+          ? { _id: { $ne: toObjectId(excludeSelf) } }
+          : {},
+        {
+          $or: [
+            { email: { $regex: q, $options: 'i' } },
+            { name: { $regex: q, $options: 'i' } },
+            { userName: { $regex: q, $options: 'i' } },
+          ],
+        },
+      ],
+    };
+
+    const users = await usersCol
+      .find(filter)
+      .project({ _id: 1, email: 1, name: 1, userName: 1 })
+      .limit(10)
+      .toArray();
+
+    res.json({ users });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 };
