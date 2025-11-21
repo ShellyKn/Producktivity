@@ -3,17 +3,23 @@ import { fmtDate, toInputDateString, fromInputDateLocal, priorityMeta, dueMeta }
 
 export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 560 }) {
   const ref = useRef(null);
-  const [stacked, setStacked] = useState(false);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+
+  // Responsive/UI state
+  const [stacked, setStacked] = useState(false);         // switches to compact actions on narrow widths
+  const [detailsOpen, setDetailsOpen] = useState(false); // expands read-only details panel
+  const [menuOpen, setMenuOpen] = useState(false);       // mobile hamburger menu open/close
+  const [editOpen, setEditOpen] = useState(false);       // edit form panel open/close
+
+  // Draft fields for edit mode
   const [title, setTitle] = useState(task.title || "");
   const [notes, setNotes] = useState(task.notes || "");
-  const [dueStr, setDueStr] = useState(toInputDateString(task.dueDate));
+  const [dueStr, setDueStr] = useState(toInputDateString(task.dueDate)); // yyyy-mm-dd input
   const [prio, setPrio] = useState(Number(task.priority) || 1);
+
+  // Optimistic edits tracked here before server roundtrip
   const [optimistic, setOptimistic] = useState(null);
 
-  // reset drafts when a new task object arrives
+  // Reset local drafts whenever a different task instance arrives
   useEffect(() => {
     setTitle(task.title || "");
     setNotes(task.notes || "");
@@ -22,6 +28,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     setOptimistic(null);
   }, [task._id, task.title, task.notes, task.dueDate, task.priority]);
 
+  // Merge optimistic fields over the authoritative task object
   const t = useMemo(() => {
     if (!optimistic) return task;
     const merged = { ...task };
@@ -31,11 +38,12 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     return merged;
   }, [task, optimistic]);
 
+  // Derived presentation metadata
   const completed = t.status === "completed";
-  const pr = priorityMeta(t.priority);
-  const dueInfo = dueMeta(t.dueDate ? new Date(t.dueDate) : null);
+  const pr = priorityMeta(t.priority);                              // {label, chipClass}
+  const dueInfo = dueMeta(t.dueDate ? new Date(t.dueDate) : null);  // {label, className}
 
-  // responsive resizing
+  // Track width and flip into "stacked" mode under a threshold
   useEffect(() => {
     if (!ref.current) return;
     const ro = new ResizeObserver(([entry]) => {
@@ -45,7 +53,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     return () => ro.disconnect();
   }, [stackAt]);
 
-  // Close actions buttons on outside
+  // Close action menu when clicking outside or pressing Escape
   useEffect(() => {
     function onDocClick(e) {
       if (!menuOpen) return;
@@ -60,26 +68,29 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     };
   }, [menuOpen]);
 
-  // Editing Helper
+  // Persist edits to parent; apply optimistic UI first
   async function saveEdits() {
     const partial = {
       title,
       notes,
       priority: Number(prio) || 1,
-      dueDate: dueStr ? fromInputDateLocal(dueStr) : null,
+      dueDate: dueStr ? fromInputDateLocal(dueStr) : null, // yyyy-mm-dd -> local noon Date
     };
     setOptimistic(prev => ({ ...(prev || {}), ...partial }));
     await onEdit?.(task._id, partial);
     setEditOpen(false);
   }
 
+  // Badge color for status (completed vs pending)
   const statusClasses = completed
     ? "text-emerald-700 border-emerald-500"
     : "text-amber-700 border-amber-500";
 
-  // notes preview logic
+  // Notes preview (single-line)
   const notesPreview = (t.notes || "").trim();
-  const notesSnippet = notesPreview ? (notesPreview.length > 40 ? notesPreview.slice(0, 37) + "…" : notesPreview) : "";
+  const notesSnippet = notesPreview
+    ? (notesPreview.length > 40 ? notesPreview.slice(0, 37) + "…" : notesPreview)
+    : "";
 
   return (
     <li
@@ -87,8 +98,9 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
       className="list-none relative rounded-lg border-2 border-[#2F4858]/40 hover:border-[#2F4858]
                  bg-[#FAFAF0] px-3 py-2 overflow-hidden transition-colors duration-200 min-w-[150px]"
     >
-      {/* HEADER */}
+      {/* HEADER ROW */}
       <div className="flex items-center gap-3 min-w-0">
+        {/* Completion checkbox (optimistic flip of status) */}
         <input
           type="checkbox"
           checked={completed}
@@ -101,13 +113,13 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           aria-label="Toggle complete"
         />
 
-        {/* small priority indicator */}
+        {/* Priority indicator chip */}
         <span
           className={`inline-block w-4 h-2 rounded-full ${pr.chipClass}`}
           title={`Priority: ${pr.label}`}
         />
 
-        {/* Title and small preview of the notes*/}
+        {/* Title + (optional) one-line notes snippet */}
         <div className={`min-w-0 flex-1 ${!stacked && !detailsOpen ? "truncate" : "break-words"}`}>
           <div
             className={`text-lg font-jua text-[#2F4858] ${completed ? "line-through opacity-50" : ""}`}
@@ -125,7 +137,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           )}
         </div>
 
-        {/* due date indicator */}
+        {/* Due date badge */}
         <span
           className={`text-xs border rounded-full px-2 py-0.5 whitespace-nowrap ${dueInfo.className}`}
           title={t.dueDate ? fmtDate(t.dueDate) : "No due date"}
@@ -133,7 +145,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           {dueInfo.label}
         </span>
 
-        {/* More details down arrow button */}
+        {/* Expand/collapse details */}
         <button
           onClick={() => setDetailsOpen(v => !v)}
           className="p-1 rounded border border-[#2F4858]/40 hover:bg-[#2F4858] hover:text-white
@@ -152,7 +164,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           </svg>
         </button>
 
-        {/* WIDE: Normal action buttons */}
+        {/* WIDE ACTIONS (edit/delete) */}
         {!stacked && (
           <div className="ml-2 flex items-center gap-2 text-xs opacity-90 flex-shrink-0">
             <button
@@ -170,7 +182,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           </div>
         )}
 
-        {/* NARROW: hamburger */}
+        {/* NARROW ACTIONS (hamburger) */}
         {stacked && (
           <button
             aria-haspopup="true"
@@ -188,7 +200,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
         )}
       </div>
 
-      {/* NARROW: Actions Dropdown */}
+      {/* NARROW: dropdown actions */}
       {stacked && (
         <div className={`mt-2 pl-7 overflow-hidden transition-all duration-300 ease-out ${menuOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0 pointer-events-none"}`}>
           <div
@@ -222,6 +234,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
       >
         <div className="w-full overflow-x-auto">
           <div className="min-w-[420px] rounded-xl border border-[#2F4858]/20 bg-[#F7FAF7] shadow-sm p-4 text-sm text-[#2F4858] space-y-4">
+            {/* Title + Due inputs */}
             <div className="flex flex-col lg:flex-row gap-3">
               <label className="flex flex-col gap-1 flex-1 min-w-0">
                 <span className="font-semibold">Title:</span>
@@ -245,6 +258,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
               </label>
             </div>
 
+            {/* Priority select */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <span className="font-semibold">Priority:</span>
               <select
@@ -259,6 +273,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
               </select>
             </div>
 
+            {/* Notes textarea */}
             <div>
               <div className="font-semibold mb-1">Notes</div>
               <textarea
@@ -267,6 +282,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
                            focus:outline-none focus:ring-0 focus:border-[#2F4858]"/>
             </div>
 
+            {/* Save / Cancel */}
             <div className="flex gap-2 pt-1">
               <button
                 onClick={saveEdits}
@@ -285,7 +301,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
                   setDueStr(toInputDateString(t.dueDate));
                   setPrio(Number(t.priority) || 1);
                 }}
-                className="inline-flex items-center justify-center gap-2  bg-white/80 text-[#2F4858] border-2 border-[#2F4858]
+                className="inline-flex items-center justify-center gap-2  bg:white/80 text-[#2F4858] border-2 border-[#2F4858]
                              rounded-lg px-4 py-2 shadow-sm transition hover:bg-[#2F4858] hover:text-white active:scale-[0.98]
                              focus:outline-none focus:ring-0">
                 ✕ Cancel
@@ -294,33 +310,38 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           </div>
         </div>
 
+        {/* Divider */}
         <div className="w-full h-0 border-4 border-[#2F4858] rounded-lg opacity-70 pointer-events-none mt-3"></div>
       </div>
 
-      {/* DETAILS PANEL */}
+      {/* DETAILS */}
       <div className={`transition-all duration-300 ease-out ${detailsOpen && !editOpen ? "max-h-[1000px] opacity-100 mt-3" : "max-h-0 opacity-0"} overflow-hidden pl-7 text-sm text-[#2F4858]`}>
         <div className="space-y-3">
+          {/* Status + Priority badges */}
           <div className="flex flex-wrap items-center gap-3">
             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs border ${statusClasses}`}>
               {t.status}
             </span>
-            <span className="inline-flex items-center gap-2 text-xs bg-white/70 border border-[#2F4858]/20 rounded-full px-2 py-0.5">
+            <span className="inline-flex items-center gap-2 text-xs bg:white/70 border border-[#2F4858]/20 rounded-full px-2 py-0.5">
               <span className={`inline-block w-3 h-2 rounded-full ${pr.chipClass}`} />
               {pr.label}
             </span>
           </div>
 
+          {/* Timestamps */}
           <div className="text-xs opacity-80 flex flex-wrap gap-x-4 gap-y-1">
             <span>Due: {fmtDate(t.dueDate)}</span>
             <span>Created: {fmtDate(t.createdAt)}</span>
             {t.completedAt && <span>Completed: {fmtDate(t.completedAt)}</span>}
           </div>
 
+          {/* Notes block */}
           <div className="rounded-xl border border-[#2F4858]/20 bg-white/60 p-3">
             <div className="font-semibold mb-1">Notes:</div>
             <div className="whitespace-pre-wrap break-words">{t.notes?.trim() || "—"}</div>
           </div>
 
+          {/* Optional checklist */}
           {!!t.checklist?.length && (
             <div className="rounded-xl border border-[#2F4858]/20 bg-white/60 p-3">
               <div className="font-semibold mb-1">Checklist</div>
@@ -335,6 +356,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
             </div>
           )}
 
+          {/* Divider */}
           <div className="w-full h-0 border-4 border-[#2F4858] rounded-lg opacity-70 pointer-events-none"></div>
         </div>
       </div>

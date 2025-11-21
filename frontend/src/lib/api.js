@@ -14,7 +14,7 @@ export async function getUserProfile(userId) {
   return data; // {_id, email, name, userName, ...}
 }
 
-/** ---- FRIENDS / FOLLOWING ---- **/
+// --- FRIENDS / FOLLOWING --- 
 
 // /api/users/search?q=...&excludeSelf=<id>
 export async function searchUsers(q, excludeSelfId) {
@@ -68,8 +68,7 @@ export async function getFriendsLeaderboard(userId) {
   return data.leaders || [];
 }
 
-/** ---- TASKS (unchanged) ---- **/
-
+// --- TASKS API ---
 export async function getTasks() {
   const user = getUser();
   if (!user?._id) throw new Error('No user in localStorage');
