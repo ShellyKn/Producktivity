@@ -1,25 +1,43 @@
+// TaskRow renders a single task in a compact, reusable “row” UI.
+// It’s used by multiple containers (calendar day list, paginated lists, columns).
+// Responsibilities:
+// - Show key task info (title, priority, due date, status).
+// - Support quick complete (checkbox), edit, delete.
+// - Provide a read-only “details” panel and an inline “edit” panel.
+// - Adapt layout responsively (wide actions vs. stacked + hamburger on narrow).
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fmtDate, toInputDateString, fromInputDateLocal, priorityMeta, dueMeta } from "../lib/utils";
 
+
+//Props:
+// - task:        task object (authoritative source of truth)
+// - onToggle:    (task) => void — flip status between "pending" and "completed"
+// - onDelete:    (taskId) => void — remove task
+// - onEdit:      (taskId, partial) => Promise<void> — persist partial updates
+// - stackAt:     number — width (px) below which actions collapse to hamburger
+ 
 export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 560 }) {
   const ref = useRef(null);
 
-  // Responsive/UI state
-  const [stacked, setStacked] = useState(false);         // switches to compact actions on narrow widths
-  const [detailsOpen, setDetailsOpen] = useState(false); // expands read-only details panel
-  const [menuOpen, setMenuOpen] = useState(false);       // mobile hamburger menu open/close
-  const [editOpen, setEditOpen] = useState(false);       // edit form panel open/close
+  // --- Responsive & panel state -------------------------------------------------
+  const [stacked, setStacked] = useState(false);         // true => show hamburger; false => inline buttons
+  const [detailsOpen, setDetailsOpen] = useState(false); // read-only details panel
+  const [menuOpen, setMenuOpen] = useState(false);       // hamburger dropdown visibility
+  const [editOpen, setEditOpen] = useState(false);       // inline edit panel visibility
 
-  // Draft fields for edit mode
+  // --- Draft state for edits (local form values) --------------------------------
   const [title, setTitle] = useState(task.title || "");
   const [notes, setNotes] = useState(task.notes || "");
-  const [dueStr, setDueStr] = useState(toInputDateString(task.dueDate)); // yyyy-mm-dd input
+  const [dueStr, setDueStr] = useState(toInputDateString(task.dueDate)); // "yyyy-mm-dd"
   const [prio, setPrio] = useState(Number(task.priority) || 1);
 
-  // Optimistic edits tracked here before server roundtrip
+  // --- Optimistic overlay -------------------------------------------------------
+  // Stores pending changes locally so the UI can reflect edits immediately.
+  // After onEdit resolves, the parent will re-send task with persisted values.
   const [optimistic, setOptimistic] = useState(null);
 
-  // Reset local drafts whenever a different task instance arrives
+  // When the incoming task changes (different _id or fields), reset local draft + clear optimistic overlay
   useEffect(() => {
     setTitle(task.title || "");
     setNotes(task.notes || "");
@@ -28,7 +46,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     setOptimistic(null);
   }, [task._id, task.title, task.notes, task.dueDate, task.priority]);
 
-  // Merge optimistic fields over the authoritative task object
+  // Merge optimistic fields over the server task (authoritative) for immediate feedback
   const t = useMemo(() => {
     if (!optimistic) return task;
     const merged = { ...task };
@@ -38,12 +56,12 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     return merged;
   }, [task, optimistic]);
 
-  // Derived presentation metadata
+  // --- Derived presentation metadata -------------------------------------------
   const completed = t.status === "completed";
-  const pr = priorityMeta(t.priority);                              // {label, chipClass}
-  const dueInfo = dueMeta(t.dueDate ? new Date(t.dueDate) : null);  // {label, className}
+  const pr = priorityMeta(t.priority);                              // { label, chipClass }
+  const dueInfo = dueMeta(t.dueDate ? new Date(t.dueDate) : null);  // { label, className }
 
-  // Track width and flip into "stacked" mode under a threshold
+  // --- ResizeObserver: toggle stacked mode under a width threshold --------------
   useEffect(() => {
     if (!ref.current) return;
     const ro = new ResizeObserver(([entry]) => {
@@ -53,13 +71,15 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     return () => ro.disconnect();
   }, [stackAt]);
 
-  // Close action menu when clicking outside or pressing Escape
+  // --- Global listeners: close hamburger on outside click / Escape --------------
   useEffect(() => {
     function onDocClick(e) {
       if (!menuOpen) return;
       if (ref.current && !ref.current.contains(e.target)) setMenuOpen(false);
     }
-    function onEsc(e) { if (e.key === "Escape") setMenuOpen(false); }
+    function onEsc(e) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
     document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onEsc);
     return () => {
@@ -68,25 +88,25 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
     };
   }, [menuOpen]);
 
-  // Persist edits to parent; apply optimistic UI first
+  // --- Persist edits (optimistic first, then call parent onEdit) ----------------
   async function saveEdits() {
     const partial = {
       title,
       notes,
       priority: Number(prio) || 1,
-      dueDate: dueStr ? fromInputDateLocal(dueStr) : null, // yyyy-mm-dd -> local noon Date
+      dueDate: dueStr ? fromInputDateLocal(dueStr) : null, // "yyyy-mm-dd" → local-noon Date
     };
     setOptimistic(prev => ({ ...(prev || {}), ...partial }));
     await onEdit?.(task._id, partial);
     setEditOpen(false);
   }
 
-  // Badge color for status (completed vs pending)
+  // Status badge palette (pending vs completed)
   const statusClasses = completed
     ? "text-emerald-700 border-emerald-500"
     : "text-amber-700 border-amber-500";
 
-  // Notes preview (single-line)
+  // Single-line notes preview (truncated)
   const notesPreview = (t.notes || "").trim();
   const notesSnippet = notesPreview
     ? (notesPreview.length > 40 ? notesPreview.slice(0, 37) + "…" : notesPreview)
@@ -98,9 +118,9 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
       className="list-none relative rounded-lg border-2 border-[#2F4858]/40 hover:border-[#2F4858]
                  bg-[#FAFAF0] px-3 py-2 overflow-hidden transition-colors duration-200 min-w-[150px]"
     >
-      {/* HEADER ROW */}
+      {/* ───────────────────────── HEADER ROW ───────────────────────── */}
       <div className="flex items-center gap-3 min-w-0">
-        {/* Completion checkbox (optimistic flip of status) */}
+        {/* Complete checkbox (optimistic status flip; parent persists) */}
         <input
           type="checkbox"
           checked={completed}
@@ -113,13 +133,13 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           aria-label="Toggle complete"
         />
 
-        {/* Priority indicator chip */}
+        {/* Priority chip (color encodes Low/Medium/High) */}
         <span
           className={`inline-block w-4 h-2 rounded-full ${pr.chipClass}`}
           title={`Priority: ${pr.label}`}
         />
 
-        {/* Title + (optional) one-line notes snippet */}
+        {/* Title + optional notes snippet (truncates in wide header) */}
         <div className={`min-w-0 flex-1 ${!stacked && !detailsOpen ? "truncate" : "break-words"}`}>
           <div
             className={`text-lg font-jua text-[#2F4858] ${completed ? "line-through opacity-50" : ""}`}
@@ -137,7 +157,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           )}
         </div>
 
-        {/* Due date badge */}
+        {/* Due badge (color indicates overdue / today / soon / normal) */}
         <span
           className={`text-xs border rounded-full px-2 py-0.5 whitespace-nowrap ${dueInfo.className}`}
           title={t.dueDate ? fmtDate(t.dueDate) : "No due date"}
@@ -145,7 +165,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           {dueInfo.label}
         </span>
 
-        {/* Expand/collapse details */}
+        {/* Disclosure caret — toggles read-only details panel */}
         <button
           onClick={() => setDetailsOpen(v => !v)}
           className="p-1 rounded border border-[#2F4858]/40 hover:bg-[#2F4858] hover:text-white
@@ -164,7 +184,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           </svg>
         </button>
 
-        {/* WIDE ACTIONS (edit/delete) */}
+        {/* Wide actions (edit/delete) — hidden when stacked */}
         {!stacked && (
           <div className="ml-2 flex items-center gap-2 text-xs opacity-90 flex-shrink-0">
             <button
@@ -182,7 +202,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           </div>
         )}
 
-        {/* NARROW ACTIONS (hamburger) */}
+        {/* Narrow actions (hamburger) — visible when stacked */}
         {stacked && (
           <button
             aria-haspopup="true"
@@ -200,7 +220,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
         )}
       </div>
 
-      {/* NARROW: dropdown actions */}
+      {/* ─────────────── NARROW: hamburger dropdown actions ─────────────── */}
       {stacked && (
         <div className={`mt-2 pl-7 overflow-hidden transition-all duration-300 ease-out ${menuOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0 pointer-events-none"}`}>
           <div
@@ -226,7 +246,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
         </div>
       )}
 
-      {/* EDIT PANEL */}
+      {/* ───────────────────────── EDIT PANEL ───────────────────────── */}
       <div
         className={`transition-all duration-300 ease-out ${
           editOpen ? "max-h-[1000px] opacity-100 mt-3" : "max-h-0 opacity-0"
@@ -234,7 +254,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
       >
         <div className="w-full overflow-x-auto">
           <div className="min-w-[420px] rounded-xl border border-[#2F4858]/20 bg-[#F7FAF7] shadow-sm p-4 text-sm text-[#2F4858] space-y-4">
-            {/* Title + Due inputs */}
+            {/* Title + Due */}
             <div className="flex flex-col lg:flex-row gap-3">
               <label className="flex flex-col gap-1 flex-1 min-w-0">
                 <span className="font-semibold">Title:</span>
@@ -258,7 +278,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
               </label>
             </div>
 
-            {/* Priority select */}
+            {/* Priority */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <span className="font-semibold">Priority:</span>
               <select
@@ -273,7 +293,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
               </select>
             </div>
 
-            {/* Notes textarea */}
+            {/* Notes */}
             <div>
               <div className="font-semibold mb-1">Notes</div>
               <textarea
@@ -282,7 +302,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
                            focus:outline-none focus:ring-0 focus:border-[#2F4858]"/>
             </div>
 
-            {/* Save / Cancel */}
+            {/* Actions */}
             <div className="flex gap-2 pt-1">
               <button
                 onClick={saveEdits}
@@ -310,11 +330,11 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
           </div>
         </div>
 
-        {/* Divider */}
+        {/* Visual divider */}
         <div className="w-full h-0 border-4 border-[#2F4858] rounded-lg opacity-70 pointer-events-none mt-3"></div>
       </div>
 
-      {/* DETAILS */}
+      {/* ───────────────────────── DETAILS PANEL ───────────────────────── */}
       <div className={`transition-all duration-300 ease-out ${detailsOpen && !editOpen ? "max-h-[1000px] opacity-100 mt-3" : "max-h-0 opacity-0"} overflow-hidden pl-7 text-sm text-[#2F4858]`}>
         <div className="space-y-3">
           {/* Status + Priority badges */}
@@ -356,7 +376,7 @@ export default function TaskRow({ task, onToggle, onDelete, onEdit, stackAt = 56
             </div>
           )}
 
-          {/* Divider */}
+          {/* Visual divider */}
           <div className="w-full h-0 border-4 border-[#2F4858] rounded-lg opacity-70 pointer-events-none"></div>
         </div>
       </div>
