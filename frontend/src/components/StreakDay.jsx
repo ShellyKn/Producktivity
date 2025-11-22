@@ -1,6 +1,14 @@
-// StreakDay component refers to a singular day of a week for that streak cycle.
-// In the UI, it will appear as a "circle", with either a green color for 
-// a streak active, otherwise it will be uncolored. 
+/*
+StreakDay component refers to a singular day of a week for that streak cycle.
+In the UI, it will appear as a "circle", with either a green color for 
+a streak active, otherwise it will be uncolored. 
+
+inputs:
+day - string for the day this is for
+dayShort - shorthand version of the day
+wasActive - boolean indicating a user has a streak day for that day
+isFuture - boolean indicating if this streak day is for a day in the future
+*/
 export default function StreakDay({ day, dayShort, wasActive, isFuture }) {
   // active day = green fill
   const activeClasses = "border-4 border-[#9cc78b] bg-[#BDECAA]";

@@ -1,5 +1,15 @@
 import { useState } from "react";
 
+/*
+General form for creating a new task. Rendered with a grayed out background
+to prevent the user from interacting with anything but the modal.
+
+inputs:
+isOpen - boolean describing if the modal is displayed.
+onClose - function handler for closing the modal
+onCreate - function handler for creating a task
+*/
+
 const TaskModal = ({ isOpen, onClose, onCreate }) => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");

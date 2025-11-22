@@ -1,5 +1,15 @@
 import TaskRow from "./TaskRow";
 
+/*
+General container to display all tasks.
+
+inputs:
+tasks - JSON array of the tasks to be displayed
+onToggle - function handler for toggling a task
+onEdit - function handler for editing a task
+onDelete - function handler for deleting a task
+*/
+
 function TaskLoader({ tasks, onToggle, onEdit, onDelete }) {
   if (!tasks || tasks.length === 0) {
     return (

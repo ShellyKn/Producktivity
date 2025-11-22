@@ -1,3 +1,13 @@
+/*
+Top header banner for each page
+
+inputs:
+left_side - a generic React component that will be rendered 
+            on the left side of the header
+right_side - a generic React component that will be rendered 
+            on the right side
+*/
+
 export default function Header({ left_side, right_side }) {
   return (
     <header

@@ -1,6 +1,17 @@
 import { useMemo, useState } from "react";
 import TaskRow from "./TaskRow";
 
+/*
+Carousel for a task box.
+
+inputs:
+title - string of the title for the component to render
+tasks - JSON array of the tasks for this task box
+onToggle - function handler for toggling the task box
+onDelete - function handler for deleting a task
+onEdit - function handler for editing a task
+pageSize - integer for the number of allowed pages (5 by default)
+*/
 export default function PaginatedTaskBox({
   title,
   tasks,

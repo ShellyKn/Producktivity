@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
 
+/*
+Logo component rendering the main Producktivity branding
+
+this component does not take in any inputs
+*/
+
 export default function Logo() {
   return (
     <Link to="/" className="inline-flex items-center gap-2 group">

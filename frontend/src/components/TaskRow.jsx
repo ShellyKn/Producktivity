@@ -1,10 +1,12 @@
-// TaskRow renders a single task in a compact, reusable “row” UI.
+/*
+TaskRow renders a single task in a compact, reusable “row” UI.
 // It’s used by multiple containers (calendar day list, paginated lists, columns).
 // Responsibilities:
 // - Show key task info (title, priority, due date, status).
 // - Support quick complete (checkbox), edit, delete.
 // - Provide a read-only “details” panel and an inline “edit” panel.
 // - Adapt layout responsively (wide actions vs. stacked + hamburger on narrow).
+*/
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fmtDate, toInputDateString, fromInputDateLocal, priorityMeta, dueMeta } from "../lib/utils";

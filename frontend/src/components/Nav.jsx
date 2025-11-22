@@ -1,6 +1,15 @@
 import { useState } from "react";
 import NavLink from "./NavLink";
 
+/*
+The navigation component renders navigation links for the application.
+
+inputs:
+pages - a string array of the names for each page
+setIndex - function handler to change the current page index
+index - an integer of the current page index
+*/
+
 export default function Nav({ pages, setIndex, index }) {
   const [open, setOpen] = useState(false);
 

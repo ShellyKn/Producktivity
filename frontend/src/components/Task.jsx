@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { toInputDateString as toInputDate, fromInputDateLocal as fromInputLocalNoon } from "../lib/utils";
 
+/*
+The foundational component for Producktivity.
+This component renders all of the information for a provided task.
+
+inputs:
+task - JSON describing the details of the task
+onToggle - function handler for when the task is toggled
+onEdit - function handler for editing a task
+onDelete - function handler for deleting a task
+*/
+
+
 function Task({ task, onToggle, onEdit, onDelete }) {
   const [title, setTitle] = useState(task.title || "");
   const [notes, setNotes] = useState(task.notes || "");

@@ -1,9 +1,14 @@
-// WeeklyStreak will contain a series of 7 StreakDays.
-// It will deal with any logic changes and updates to the tasks. 
-
 import { useMemo, useState } from "react";
 import StreakDay from "./StreakDay";
 import { startOfDay, getWeekDays, buildCompletedDaySet } from "../lib/utils";
+
+/*
+WeeklyStreak will contain a series of 7 StreakDays.
+It will deal with any logic changes and updates to the tasks. 
+
+inputs:
+tasks - JSON array of all of the tasks for a user. 
+*/
 
 export default function WeeklyStreak({ tasks }) {
   // 0 = current week, -1 = previous week, +1 = next week

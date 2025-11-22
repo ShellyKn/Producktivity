@@ -1,3 +1,13 @@
+/*
+The component used to render a link to navigate to. 
+
+inputs:
+isActive - boolean representing whether or not the user is currently
+            at this link
+name - string of the name for this link to render
+whenClicked - function handler for when this link is clicked
+*/
+
 export default function NavLink({ isActive, name, whenClicked }) {
   return (
     <button

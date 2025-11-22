@@ -1,6 +1,19 @@
 import { useMemo, useState } from "react";
 import { searchUsers } from "../lib/api.js";
 
+/*
+Section that contains the UI needed for the following feature. 
+Displays the user's followers and allows users to unfollow them if desired.
+This can also allow users to search for users to follow.
+
+inputs:
+currentUserId - integer of the User ID of this user
+following - JSON array of each person this user follows
+loadingFollowing - boolean for the status of loading the people this user follows
+onFollow - function handler to handle following
+onUnfollow - function handler to handle unfollowing
+onRefresh - function handler to handle refreshing
+*/
 export default function FollowBar({
   currentUserId,
   following = [],            // [{_id, email, name, userName}]
