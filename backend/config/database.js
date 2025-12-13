@@ -4,9 +4,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const db_password = process.env.DB_PASSWORD;
-const db_user = process.env.DB_USER;
-const uri = `mongodb+srv://${db_user}:${db_password}@cluster0.kcznebn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error("Missing MONGODB_URI in environment");
+}
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
