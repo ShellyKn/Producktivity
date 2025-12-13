@@ -1,6 +1,6 @@
 // ONE base for the REST API
-export const API_ROOT = 'http://localhost:4000';
-export const API_BASE = `${API_ROOT}/api`;
+// export const API_ROOT = 'http://localhost:4000';
+export const API_BASE = `/api`;
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem('user') || '{}'); }

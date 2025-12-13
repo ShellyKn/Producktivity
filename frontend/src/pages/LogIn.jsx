@@ -35,7 +35,7 @@ function LogIn() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:4000/api/users/login", {
+      const res = await fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -64,7 +64,7 @@ function LogIn() {
 
     try {
       const localPart = (form.email || "").split("@")[0] || "";
-      const res = await fetch("http://localhost:4000/api/users/register", {
+      const res = await fetch("/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

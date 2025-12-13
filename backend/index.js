@@ -51,7 +51,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/follow", followRoutes); //! follow routes SHOULD alr include their own paths
 app.use("/api", quoteRoutes);
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0",() => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
