@@ -40,3 +40,5 @@ npm run dev
 ```
 
 Visit the URL shown by Vite (typically `http://localhost:5173`).
+
+NOTE: Firefox users may experience a minor cosmetic bug if the "Allow pages to choose their own fonts, instead of your selections above" setting in Settings > General > Fonts > Advanced... is turned on. 
