@@ -16,6 +16,7 @@ import {
   unfollowUser,
   getUserProfile,
 } from "../lib/api.js";
+import { deriveStreakStats } from "../lib/streakUtils.js";
 
 // --- date utilities used for "tasks done today" ---
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
@@ -28,7 +29,6 @@ const filters = Object.freeze({ PRIORITY:"Priority", DATE:"Date" });
 export default function Profile({
   tasks,            // all tasks for the current user
   quote,            // daily quote string
-  streakDays = 10,  // current streak (visual only here)
   setModalOpen,     // open "add task" modal
   setPageIndex,     // navigate to dashboard for more stats
   onToggle,         // toggle task completion
@@ -170,6 +170,10 @@ export default function Profile({
     return arr;
   }, [tasks, filter]);
 
+  const {current: currentStreak} = useMemo(
+    () => deriveStreakStats(tasks || []),
+    [tasks]
+  );
   return (
 
     <div className="font-jua w-full flex-1 flex flex-col md:flex-row text-[#2F4858] bg-[#FAFAF0] px-4 md:px-8 py-6 gap-6 md:gap-8">
@@ -198,7 +202,7 @@ export default function Profile({
               <div className="rounded-xl border-2 border-[#2F4858]/40 bg-white/70 px-3 py-2 flex flex-col items-center">
                 <span className="text-xs uppercase opacity-70">Streak</span>
                 <span className="text-3xl leading-none mt-1">
-                  {streakDays}<span className="text-base ml-1">days</span>
+                  {currentStreak}<span className="text-base ml-1">days</span>
                 </span>
                 <span className="text-xs opacity-70 mt-1">keep it going!</span>
               </div>
